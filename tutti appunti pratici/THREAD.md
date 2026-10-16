@@ -1,10 +1,10 @@
 <h1 style="color:#C00000"><strong>THREAD — APPUNTI PRATICI</strong></h1>
 
-Solo checklist e schemi da applicare negli esercizi. La teoria è in [tutti appunti/THREAD.md](</workspace/Programmazione-distribuita/tutti%20appunti/THREAD.md>).
+Solo checklist e schemi da applicare negli esercizi. La teoria è in [tutti appunti/THREAD.md](../tutti%20appunti/THREAD.md).
 
 <h2 style="color:#C00000"><strong>AVVIARE UN’ATTIVITÀ</strong></h2>
 
-- Preferisci descrivere il lavoro con `Runnable` o `Callable` e affidarlo a un `Thread` o, per più attività, a un `ExecutorService`.
+- Un `Thread` accetta direttamente un `Runnable`, il cui lavoro sta in `run()`. Un `Callable<V>` ha invece `call()`, restituisce un valore e normalmente si passa a `ExecutorService.submit(...)`, ottenendo un `Future<V>`: non si può passare direttamente a `new Thread(callable)`.
 - Metti il codice dell’attività in `run()`; usa `start()` per avviare un thread nuovo.
 - Non chiamare `run()` aspettandoti un nuovo thread: esegue il metodo nel thread corrente.
 - Non riutilizzare un `Thread` terminato: non può essere avviato una seconda volta.
@@ -18,7 +18,7 @@ t.start();
 <h2 style="color:#C00000"><strong>ATTENDERE E COORDINARE</strong></h2>
 
 - Usa `join()` per attendere la terminazione di un altro thread.
-- Usa `join(timeout)` quando vuoi limitare quanto resta in attesa il chiamante; il timeout non ferma il thread osservato.
+- Usa `join(timeout)` con timeout positivo quando vuoi limitare quanto resta in attesa il chiamante (`join(0)` non impone una scadenza); il timeout non ferma il thread osservato.
 - Usa `isAlive()` per controllare se un thread avviato non è ancora terminato.
 - Non usare `sleep()` per tentare di sincronizzare l’ordine: sospende il thread corrente per un tempo approssimativo, ma non garantisce che un altro abbia completato il lavoro.
 - Ricorda che `sleep()` non rilascia un lock `synchronized` posseduto.

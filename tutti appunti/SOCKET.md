@@ -69,6 +69,7 @@ Per trasferire oggetti Java si possono usare `ObjectOutputStream` e `ObjectInput
 ```java
 ObjectOutputStream out =
     new ObjectOutputStream(socket.getOutputStream());
+out.flush(); // rende disponibile anche l’header al peer
 
 ObjectInputStream in =
     new ObjectInputStream(socket.getInputStream());
@@ -95,7 +96,21 @@ Il componente sul lato server è spesso chiamato **skeleton** nel modello storic
 
 Un’interfaccia dichiara quali operazioni sono disponibili; non invoca da sola i metodi del server. L’oggetto server realizza l’interfaccia e il client usa uno stub con le stesse operazioni.
 
-Nelle note compare un esempio di interfaccia `Impiegato` con `getNome()`, `getID()`, `getStipendio()` e `aumentaStipendio(diQuanto)`. La firma con `throws Throwable` è solo un esempio generico e non è una scelta consigliata. Per Java RMI si usa `RemoteException` nei metodi remoti; con un protocollo socket progettato manualmente si definiscono eccezioni e messaggi adeguati al proprio protocollo.
+```java
+// Contratto didattico di invocazione sopra socket, non interfaccia Java RMI.
+public interface Impiegato {
+    String getNome() throws Throwable;
+    String getID() throws Throwable;
+    int getStipendio() throws Throwable;
+    int aumentaStipendio(int diQuanto) throws Throwable;
+}
+```
+
+- `getNome()` restituisce il nome; `getID()` l’identificativo.
+- `getStipendio()` restituisce lo stipendio corrente.
+- `aumentaStipendio(diQuanto)` aggiorna lo stipendio e restituisce il nuovo valore.
+
+La firma `throws Throwable` è conservata dall’esempio originale per riconoscere la slide. Per un nuovo protocollo si preferiscono eccezioni più specifiche; per Java RMI serve invece un’interfaccia `extends Remote` con metodi che dichiarano `RemoteException` o un suo supertipo ammesso.
 
 <h3 style="color:#C00000"><strong>SEQUENZA CONCETTUALE DELLA CHIAMATA</strong></h3>
 
@@ -106,25 +121,38 @@ Nelle note compare un esempio di interfaccia `Impiegato` con `getNome()`, `getID
 5. Il componente server legge la richiesta e invoca il metodo sull’oggetto vero.
 6. Il risultato viene inviato indietro e restituito al client dallo stub.
 
+Esempio originale: `aumentaStipendio(1000)` quando lo stipendio iniziale è 30000:
+
+```text
+client/stub                         server/skeleton
+"aumentaStipendio", 1000  --------> legge metodo e parametro
+                                   chiama il metodo: 30000 → 31000
+nuovo stipendio 31000    <-------- invia il risultato
+```
+
+Lo stub traduce la chiamata in una richiesta di rete; lo skeleton traduce la richiesta in una chiamata all’oggetto vero. Entrambi devono concordare ordine e formato dei dati. In un protocollo socket il registro è facoltativo: il client può conoscere già host e porta; RMI offre invece il proprio registry.
+
+**Locale/remoto:** chiamare direttamente un normale `ImpiegatoImpl` locale esegue il codice locale; chiamare uno stub/proxy può inviare la richiesta al server. La parola `new` da sola non decide il tipo di chiamata: anche lo stub è un oggetto creato nella JVM client.
+
 Questa struttura è una forma di RPC (chiamata di procedura/metodo remoto). Java RMI fornisce un’infrastruttura per questo modello; usando socket grezzi, il programmatore deve definire e implementare il protocollo.
 
 <h2 style="color:#C00000"><strong>APPROFONDIMENTI PER CAPIRE GLI SCAMBI TCP</strong></h2>
 
-### TCP è un flusso, non una coda di messaggi
+<h3 style="color:#C00000"><strong>TCP È UN FLUSSO, NON UNA CODA DI MESSAGGI</strong></h3>
 
 TCP conserva ordine e affidabilità del flusso, ma non mantiene i confini delle singole chiamate a `write()`. Se il mittente esegue due scritture, il destinatario può leggerne i dati insieme o in più letture. `read()` può restituire meno byte di quelli richiesti; il programma deve usare un ciclo, una lunghezza nota o un delimitatore per ricostruire il messaggio completo.
 
 Per questo client e server devono concordare un **protocollo applicativo**: campi, ordine, lunghezza o terminazione dei messaggi, gestione degli errori e fine della sessione.
 
-### Comunicazione bidirezionale
+<h3 style="color:#C00000"><strong>COMUNICAZIONE BIDIREZIONALE</strong></h3>
 
 Una connessione TCP è bidirezionale: entrambi i lati hanno uno stream di input e uno di output. Il nome input/output è sempre relativo al programma che usa lo stream. Se il client scrive su `getOutputStream()`, il server legge dal proprio `getInputStream()`.
 
-### Testo e charset
+<h3 style="color:#C00000"><strong>TESTO E CHARSET</strong></h3>
 
 Per testo si avvolge lo stream di byte in un `InputStreamReader`/`OutputStreamWriter`, specificando la stessa codifica da entrambe le parti (spesso UTF-8). `BufferedReader.readLine()` aspetta un terminatore di riga; se il mittente non invia `\n` o non chiude lo stream, il ricevente può restare in attesa.
 
-### Oggetti e intestazioni degli stream
+<h3 style="color:#C00000"><strong>OGGETTI E INTESTAZIONI DEGLI STREAM</strong></h3>
 
 `ObjectOutputStream` scrive un header quando viene costruito; `ObjectInputStream` attende e legge l’header del peer. Perciò entrambi i lati dovrebbero costruire e fare `flush()` del proprio `ObjectOutputStream` prima di costruire `ObjectInputStream`, evitando che entrambi aspettino. Le classi devono essere serializzabili e disponibili su entrambi i lati.
 

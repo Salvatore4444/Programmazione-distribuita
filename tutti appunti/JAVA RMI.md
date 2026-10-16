@@ -32,7 +32,7 @@ RMI gestisce molti dettagli di comunicazione, così il programmatore può concen
 
 <h3 style="color:#C00000"><strong>SICUREZZA E SANDBOX</strong></h3>
 
-La **sandbox** è un ambiente controllato nel quale il codice può compiere solo operazioni autorizzate. Nel modello storico descritto dalle slide, serviva a limitare i danni che poteva causare codice scaricato dalla rete, per esempio impedendogli di leggere file riservati, cancellare documenti o avviare programmi.
+La **sandbox** è un ambiente controllato nel quale il codice può compiere solo operazioni autorizzate. Nel modello storico descritto dalle slide, serviva a limitare i danni che poteva causare codice scaricato dalla rete, per esempio impedendogli di leggere file riservati, cancellare documenti, avviare programmi o aprire connessioni verso destinazioni non consentite.
 
 La sandbox non è una proprietà intrinseca di RMI. Le slide descrivono il modello storico Java basato anche su classloader, bytecode verifier e Security Manager. Il Security Manager è stato disabilitato permanentemente da JDK 24; non bisogna assumere che il caricamento remoto sia sicuro per il solo fatto di usare RMI.
 
@@ -65,6 +65,30 @@ public interface Calcolatrice extends Remote {
 `Remote` è un’interfaccia marker: non contiene metodi, ma indica che l’interfaccia descrive un oggetto remoto. `somma` specifica parametri, risultato e possibile errore di comunicazione.
 
 Solo i metodi dichiarati nell’interfaccia remota fanno parte del servizio esposto tramite RMI. Il fatto che un metodo della classe server sia `public` non lo rende automaticamente invocabile da un client remoto.
+
+Esempio ripreso dai tuoi appunti: `stampaDiagnostica()` può essere un metodo pubblico dell’implementazione, ma resta fuori dal contratto remoto se non è dichiarato in un’interfaccia remota. `somma(int a, int b)` indica invece nome dell’operazione, due argomenti interi, risultato intero e possibile `RemoteException`.
+
+Metodo da inserire nella classe di implementazione, non nell’interfaccia remota:
+
+```java
+public void stampaDiagnostica() {
+    // Operazione pubblica locale: non esposta dal contratto remoto.
+}
+```
+
+Quando il parametro è un altro servizio remoto, usa il tipo della sua interfaccia:
+
+```java
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface ReteCalcolatrici extends Remote {
+    void collega(Calcolatrice altra) throws RemoteException;
+}
+```
+
+Il ricevente può chiamare `altra.somma(...)` attraverso uno stub; non deve conoscere la classe concreta che realizza `altra`.
+
 
 <h3 style="color:#C00000"><strong>ECCEZIONI REMOTE</strong></h3>
 
@@ -111,10 +135,26 @@ public class CalcolatriceImpl extends UnicastRemoteObject
 In Java una classe può estendere una sola classe. Se l’implementazione deve già estendere un’altra classe, si può implementare l’interfaccia remota ed esportare l’istanza esplicitamente:
 
 ```java
-CalcolatriceImpl oggetto = new CalcolatriceImpl();
+import java.rmi.RemoteException;
+
+// Questa classe NON estende UnicastRemoteObject.
+public class CalcolatriceSemplice implements Calcolatrice {
+    @Override
+    public int somma(int a, int b) throws RemoteException {
+        return a + b;
+    }
+}
+```
+
+Poi, nel codice di avvio del server:
+
+```java
+CalcolatriceSemplice oggetto = new CalcolatriceSemplice();
 Calcolatrice riferimento =
     (Calcolatrice) UnicastRemoteObject.exportObject(oggetto, 0);
 ```
+
+Se necessario, `CalcolatriceSemplice` può estendere una propria superclasse locale. Non esportare di nuovo un’istanza della precedente `CalcolatriceImpl`: il costruttore di `UnicastRemoteObject` l’ha già esportata e una seconda esportazione genera `ExportException`. Il nome diverso evidenzia che sono due implementazioni alternative.
 
 L’esportazione predispone l’oggetto a ricevere chiamate RMI. Il valore `0` chiede a RMI di scegliere una porta disponibile. **Esportare** l’oggetto e **registrarlo** nel registry sono passaggi distinti.
 
@@ -136,6 +176,21 @@ Calcolatrice calc =
     (Calcolatrice) Naming.lookup("rmi://server/Calcolatrice");
 int risultato = calc.somma(2, 3);
 ```
+
+Il riferimento può anche essere già disponibile, senza un nuovo `lookup`. Frammento nel client:
+
+```java
+Calcolatrice calc = riferimentoRicevuto;
+int risultato = calc.somma(2, 3);
+```
+
+| Operazione di naming | Effetto |
+|---|---|
+| `bind` | Associa un nome nuovo; fallisce se è già registrato. |
+| `rebind` | Crea o sostituisce l’associazione del nome. |
+| `lookup` | Cerca il riferimento associato al nome. |
+| `unbind` | Rimuove l’associazione dal registry. |
+| `list` | Elenca i nomi registrati. |
 
 Avere ottenuto uno stub non garantisce che il server resti raggiungibile: ogni chiamata può comunque fallire.
 
@@ -162,7 +217,26 @@ Calcolatrice servizio = stub;
 servizio = null; // cambia la variabile locale, non l’oggetto remoto
 ```
 
-Per modificare lo stato dell’oggetto server, il client deve invocare un metodo che lo modifica, per esempio `servizio.impostaPrezzo(15)`.
+Per modificare lo stato sul server, il client deve invocare un metodo mutatore previsto dall’interfaccia. La `Calcolatrice` dell’esempio offre solo `somma`: per il prezzo serve un contratto diverso, per esempio:
+
+```java
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface ProdottoRemoto extends Remote {
+    void impostaPrezzo(double prezzo) throws RemoteException;
+}
+```
+
+Frammento nel client, assumendo che `prodotto` sia stato ottenuto con `lookup`:
+
+```java
+ProdottoRemoto copiaDelRiferimento = prodotto;
+copiaDelRiferimento = null;  // cambia solo questa variabile locale
+prodotto.impostaPrezzo(15);  // invoca il metodo sul server
+```
+
+Non chiamare un metodo sulla variabile che hai appena posto a `null`: provocherebbe `NullPointerException` prima di ogni comunicazione di rete. In Java si passano sempre valori; nel caso remoto il valore trasmesso rappresenta un riferimento/stub, non un indirizzo di memoria condivisa tra JVM.
 
 <h2 style="color:#C00000"><strong>8. ARCHITETTURA A LIVELLI</strong></h2>
 
@@ -174,7 +248,7 @@ Java RMI è descritto attraverso tre livelli:
 
 Il percorso tipico è:
 
-**Client → Stub → Remote Reference Layer → Transport Layer → Skeleton → Implementazione**
+**Client → stub → Remote Reference Layer client → trasporto/rete → Remote Reference Layer server → skeleton/dispatcher → implementazione**
 
 La risposta percorre il cammino inverso.
 
@@ -196,6 +270,9 @@ Il livello di trasporto stabilisce e gestisce le connessioni verso gli indirizzi
 
 Per ricostruire un oggetto serializzato, la JVM destinataria deve conoscere la sua classe. Nel modello tradizionale, se non è già disponibile, la definizione poteva essere cercata presso un **codebase**, un URL che indicava dove recuperare il file `.class`.
 
+Sequenza descritta nel testo originale: il marshalling annota il flusso con informazioni sulle classi e sul codebase; all’unmarshalling il classloader prova a risolvere la classe disponibile localmente e, se la configurazione storica lo permette, può recuperarla dal codebase. Il modello riguardava anche il caricamento degli stub. Scaricare la classe e ricostruire l’oggetto sono passaggi distinti: i byte dello stato non costituiscono da soli la definizione della classe.
+
+
 Il modello storico di sicurezza illustrato nelle slide include:
 
 - **Classloader**, che carica le classi e ne gestisce origine e namespace;
@@ -209,10 +286,10 @@ Il Security Manager è stato disabilitato permanentemente da JDK 24. Non bisogna
 RMI estende la serializzazione Java per gestire i riferimenti remoti. Durante il marshalling può sostituire un oggetto remoto con il suo stub. La slide descrive l’uso di `ObjectOutputStream` e dei metodi di personalizzazione:
 
 - `replaceObject()`: sostituisce un oggetto durante la serializzazione. Per un oggetto remoto esportato restituisce lo stub. Secondo il meccanismo descritto nelle slide, se l’oggetto remoto non è esportato può essere restituito l’oggetto stesso; in tal caso la normale serializzazione deve poter gestire la classe e il suo stato. Per un oggetto non remoto si continua con la serializzazione ordinaria.
-- `enableReplaceObject()`: abilita il meccanismo di sostituzione nel modello descritto.
+- `enableReplaceObject(true)`: abilita il meccanismo di sostituzione nel modello descritto.
 - `annotateClass()`: permette di aggiungere annotazioni/informazioni sulla classe, usate nel meccanismo storico di caricamento dinamico.
 
-In questo modo i parametri possono includere riferimenti a servizi remoti: il flusso contiene il riferimento/stub, non l’implementazione remota. La serializzazione conserva inoltre le relazioni tra riferimenti condivisi nello stesso flusso.
+Per un oggetto remoto esportato, il meccanismo descritto nelle slide recupera lo stub tramite `RemoteObject.toStub(...)`. In questo caso il flusso contiene il riferimento/stub, non l’implementazione remota. Un oggetto `Remote` non esportato non diventa raggiungibile da remoto soltanto perché può essere serializzato. La serializzazione conserva inoltre le relazioni tra riferimenti condivisi nello stesso flusso.
 
 <h2 style="color:#C00000"><strong>11. PROCEDURA PER CREARE ED ESEGUIRE UN PROGRAMMA RMI</strong></h2>
 
@@ -226,6 +303,9 @@ In questo modo i parametri possono includere riferimenti a servizi remoti: il fl
 8. **Gestire gli errori remoti** nel client e nel server.
 
 La policy `AllPermission` mostrata nelle slide concede permessi molto ampi ed è un esempio storico: non va copiata come impostazione di sicurezza generale. Registry, esportazione e registrazione sono operazioni distinte.
+
+Nel procedimento storico del corso: compilazione delle classi → eventuale `rmic` per stub/skeleton del vecchio JDK → avvio del registry → avvio e registrazione server → avvio client. Il client deve avere interfacce e classi condivise; con stub statici deve poter caricare anche la classe stub. Con stub dinamici non si copia invece un file stub generato da `rmic`.
+
 
 <h2 style="color:#C00000"><strong>12. ADAPTER</strong></h2>
 
@@ -279,7 +359,7 @@ Sì: associa un nome al riferimento remoto. Il client cerca il nome con `lookup`
 
 <h2 style="color:#C00000"><strong>APPROFONDIMENTI UTILI PER L’ESAME</strong></h2>
 
-### Obiettivi RMI da saper distinguere
+<h3 style="color:#C00000"><strong>OBIETTIVI RMI DA SAPER DISTINGUERE</strong></h3>
 
 - **Invocazione trasparente:** chiamare un metodo remoto con un’interfaccia Java, lasciando a RMI la comunicazione.
 - **Integrazione:** usare oggetti, interfacce, eccezioni e strumenti Java anche in un sistema distribuito.
@@ -287,7 +367,7 @@ Sì: associa un nome al riferimento remoto. Il client cerca il nome con `lookup`
 - **Semplicità:** ridurre il codice di rete scritto a mano, mantenendo la gestione esplicita degli errori remoti.
 - **Sicurezza:** rispettare le protezioni della piattaforma; RMI non rende sicuro automaticamente il codice scaricato o deserializzato.
 
-### Percorso completo da ricordare
+<h3 style="color:#C00000"><strong>PERCORSO COMPLETO DA RICORDARE</strong></h3>
 
 1. L’implementazione sul server viene creata ed **esportata**.
 2. Il server pubblica il riferimento nel registry con un nome.
@@ -297,31 +377,34 @@ Sì: associa un nome al riferimento remoto. Il client cerca il nome con `lookup`
 6. Il server ricostruisce i parametri, esegue il metodo e serializza la risposta.
 7. Il client ricostruisce il risultato oppure riceve un errore remoto.
 
-### Dettaglio dei livelli
+<h3 style="color:#C00000"><strong>DETTAGLIO DEI LIVELLI</strong></h3>
 
 - **Stub/Skeleton:** lo stub lato client apre o usa la comunicazione, effettua il marshalling degli argomenti, attende l’esito, fa unmarshalling del risultato e lo restituisce. Nel modello tradizionale lo skeleton lato server fa unmarshalling, invoca il metodo concreto e prepara il risultato.
 - **Remote Reference Layer:** tiene conto del tipo di riferimento e della semantica di invocazione (per esempio unicast); le slide citano anche multicast, attivazione e riconnessione come modelli possibili o storici.
 - **Transport Layer:** stabilisce e gestisce connessioni verso indirizzi IP remoti, ascolta richieste in arrivo, mantiene lo stato delle connessioni e consegna le richieste al dispatcher/oggetto corretto.
 - Il protocollo mostrato nelle slide è **Java Remote Method Protocol**, protocollo proprietario usato per il trasporto delle chiamate RMI.
 
-### Interfacce e tipi passati
+<h3 style="color:#C00000"><strong>INTERFACCE E TIPI PASSATI</strong></h3>
 
 Una firma di metodo remoto può contenere valori primitivi e oggetti serializzabili. Un riferimento remoto deve essere espresso tramite l’interfaccia remota del servizio, non tramite la classe concreta server. La serializzazione di un normale oggetto trasferisce il suo stato; per un oggetto remoto, RMI sostituisce l’implementazione con lo stub, se è stato esportato.
 
 Un riferimento locale non può attraversare direttamente lo spazio di indirizzamento dell’altra JVM: il middleware costruisce uno stub che rappresenta il servizio remoto.
 
-### Avvio ed esecuzione: esempio minimo moderno
+<h3 style="color:#C00000"><strong>AVVIO ED ESECUZIONE: ESEMPIO MINIMO MODERNO</strong></h3>
 
-Server (se si estende `UnicastRemoteObject`, l’istanza viene esportata dal costruttore):
+Server (se si estende `UnicastRemoteObject`, l’istanza viene esportata dal costruttore; i campi statici mantengono riferimenti forti agli oggetti pubblicati):
 
 ```java
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class Server {
+    private static Calcolatrice servizio;
+    private static Registry registry;
+
     public static void main(String[] args) throws Exception {
-        Calcolatrice servizio = new CalcolatriceImpl();
-        Registry registry = LocateRegistry.createRegistry(1099);
+        servizio = new CalcolatriceImpl();
+        registry = LocateRegistry.createRegistry(1099);
         registry.rebind("Calcolatrice", servizio);
     }
 }
@@ -345,19 +428,19 @@ public class Client {
 
 Nel secondo modo di esportazione, il server registra il riferimento restituito da `exportObject(...)`. Registry e oggetto remoto possono trovarsi nello stesso processo o essere avviati separatamente, secondo la configurazione. Il client deve avere l’interfaccia e i tipi necessari a interpretare parametri e risultati.
 
-### Caricamento dinamico e serializzazione: punti di attenzione
+<h3 style="color:#C00000"><strong>CARICAMENTO DINAMICO E SERIALIZZAZIONE: PUNTI DI ATTENZIONE</strong></h3>
 
 Nel modello storico, un **codebase** indica dove recuperare classi non presenti nella JVM ricevente. Il classloader carica la classe, il bytecode verifier controlla il bytecode e il Security Manager del vecchio modello applica permessi. Oggi non bisogna fare affidamento sul download automatico da URL né sul Security Manager come protezione disponibile.
 
 La slide cita i metodi di personalizzazione della serializzazione:
 
 - `replaceObject()` può sostituire un oggetto serializzato con il suo stub;
-- `enableReplaceObject()` abilita la sostituzione nel modello descritto;
+- `enableReplaceObject(true)` abilita la sostituzione nel modello descritto;
 - `annotateClass()` aggiunge informazioni associate alla classe, tra cui quelle usate nel modello storico del codebase.
 
 La sostituzione di riferimenti remoti è ciò che permette di passare un servizio remoto come argomento o risultato senza trasferire la sua implementazione server.
 
-### Confronti che non vanno confusi
+<h3 style="color:#C00000"><strong>CONFRONTI CHE NON VANNO CONFUSI</strong></h3>
 
 - **Registry vs stub:** il registry risolve un nome nel riferimento; lo stub viene usato per le chiamate.
 - **Esportazione vs registrazione:** esportare rende l’oggetto raggiungibile via RMI; registrare associa il riferimento a un nome.
@@ -365,6 +448,6 @@ La sostituzione di riferimenti remoti è ciò che permette di passare un servizi
 - **RMI vs chiamata locale:** la sintassi può somigliare, ma RMI può fallire per rete, latenza o indisponibilità del server.
 - **Interfaccia `Remote` vs classe concreta:** il client programma contro il contratto; il server fornisce l’implementazione.
 
-### Sequenza pratica da ripetere
+<h3 style="color:#C00000"><strong>SEQUENZA PRATICA DA RIPETERE</strong></h3>
 
 **Interfaccia `extends Remote` → metodi `throws RemoteException` → implementazione → esportazione → registry → `bind/rebind` → client `lookup` → chiamata via interfaccia → gestione degli errori.**

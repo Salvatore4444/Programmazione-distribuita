@@ -2,7 +2,7 @@
 
 Gli appunti pratici sono suddivisi per macroargomento e contengono checklist, procedure ed esempi da applicare negli esercizi.
 
-- [Java RMI](</workspace/Programmazione-distribuita/tutti%20appunti%20pratici/JAVA%20RMI.md>)
-- [Socket](</workspace/Programmazione-distribuita/tutti%20appunti%20pratici/SOCKET.md>)
-- [Thread](</workspace/Programmazione-distribuita/tutti%20appunti%20pratici/THREAD.md>)
-- [Sistemi distribuiti e middleware](</workspace/Programmazione-distribuita/tutti%20appunti%20pratici/SISTEMI%20DISTRIBUITI%20E%20MIDDLEWARE.md>)
+- [Java RMI](JAVA%20RMI.md)
+- [Socket](SOCKET.md)
+- [Thread](THREAD.md)
+- [Sistemi distribuiti e middleware](SISTEMI%20DISTRIBUITI%20E%20MIDDLEWARE.md)

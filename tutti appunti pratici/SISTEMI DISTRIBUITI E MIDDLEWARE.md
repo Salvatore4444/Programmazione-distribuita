@@ -1,6 +1,6 @@
 <h1 style="color:#C00000"><strong>SISTEMI DISTRIBUITI E MIDDLEWARE — APPUNTI PRATICI</strong></h1>
 
-Checklist per analizzare esercizi e architetture. La teoria completa, con definizioni, motivazioni, leggi e collegamenti fra gli argomenti, è in [tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md](</workspace/Programmazione-distribuita/tutti%20appunti/SISTEMI%20DISTRIBUITI%20E%20MIDDLEWARE.md>).
+Checklist per analizzare esercizi e architetture. La teoria completa, con definizioni, motivazioni, leggi e collegamenti fra gli argomenti, è in [tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md](../tutti%20appunti/SISTEMI%20DISTRIBUITI%20E%20MIDDLEWARE.md).
 
 <h2 style="color:#C00000"><strong>ANALIZZARE I REQUISITI DI UN SISTEMA DISTRIBUITO</strong></h2>
 
@@ -33,7 +33,8 @@ Per una risorsa o un servizio, chiediti quali dettagli il client non dovrebbe ge
 - locazione: il client conosce l’indirizzo fisico?
 - migrazione: il servizio può cambiare macchina durante l’uso?
 - replica: chi sceglie e aggiorna le copie?
-- concorrenza/transazione: come si coordinano accessi simultanei?
+- concorrenza: come si coordinano accessi simultanei?
+- transazione: le modifiche sono trattate come un’unità coerente, con commit o rollback?
 - guasti: quali retry, fallback o limiti di attesa esistono?
 - persistenza: come si conserva e ritrova lo stato?
 - prestazioni e scalabilità: come reagisce il sistema a più richieste?
@@ -92,4 +93,4 @@ Quando un esercizio cita CORBA, .NET Remoting o WCF, riconosci il ruolo storico 
 | Metcalfe | `N²` | collegamenti tra coppie |
 | Reed | `2^N` | gruppi/sottoreti |
 
-Per due reti con `n` e `m` utenti attivi, la formula annotata per Reed è `2^n · 2^m − (2^n + 2^m)`. Spiega che si tratta di una stima del valore potenziale dei gruppi creati collegando le reti; non presentarla come legge universale del valore economico.
+Per due reti con `n` e `m` utenti attivi, la formula annotata per Reed è `2^n · 2^m − (2^n + 2^m)`. Conservala come formula degli appunti; il conteggio esatto dei gruppi con almeno un membro per rete include un `+1`: `(2^n−1)(2^m−1)`. Distingui anche l’aumento `2nm` del modello di Metcalfe `N²` dalle `nm` nuove coppie non orientate. Spiega che si tratta di modelli del valore potenziale; non presentarla come legge universale del valore economico.

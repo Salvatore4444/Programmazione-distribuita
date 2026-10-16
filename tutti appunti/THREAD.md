@@ -15,7 +15,7 @@ Con un solo core, il sistema alterna l’esecuzione dei thread. Con più core, t
 
 - **Context switch:** il sistema interrompe temporaneamente un’attività e riprende un’altra, salvando e ripristinando lo stato. Ha un costo.
 - **Cache miss:** il dato richiesto non è nella cache e deve essere recuperato da un livello di memoria più lento.
-- **Page fault:** la pagina di memoria richiesta non è disponibile nella RAM e va recuperata, spesso dallo storage.
+- **Page fault:** un accesso richiede un intervento del sistema operativo sulla mappatura della memoria virtuale. Nel caso di una pagina non residente può richiedere un recupero lento dallo storage; non tutti i page fault implicano una lettura da disco.
 - **Attesa e sincronizzazione:** un thread può dover aspettare una risorsa o un altro thread.
 
 Questi fenomeni non sono esclusivi dei sistemi multicore, ma possono influenzare prestazioni e coordinamento quando si lavora in concorrenza.
@@ -43,7 +43,27 @@ I thread dello stesso processo condividono memoria e risorse (per esempio gli og
 
 <h2 style="color:#C00000"><strong>5. CREARE E AVVIARE UN THREAD IN JAVA</strong></h2>
 
-Si può descrivere il lavoro con `Runnable` e affidarlo a un oggetto `Thread`, oppure usare un executor. `Runnable` è spesso preferibile all’estensione di `Thread`, perché una classe Java può estendere una sola classe.
+I tuoi appunti presentano **due modi** per avviare un thread.
+
+**1. Estendere `Thread`**, ridefinendo `run()`:
+
+```java
+public class Lavoratore extends Thread {
+    @Override
+    public void run() {
+        System.out.println("Lavoro in un nuovo thread");
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Lavoratore t = new Lavoratore();
+        t.start();
+        t.join();
+    }
+}
+```
+
+**2. Implementare `Runnable`** e passare l’attività a `Thread`, come nel frammento seguente. `Runnable` è spesso preferibile perché separa lavoro ed esecutore e una classe Java può estendere una sola classe. Un executor è un’ulteriore scelta di gestione delle attività.
+
 
 ```java
 Runnable lavoro = () -> System.out.println("Attività in esecuzione");
@@ -64,7 +84,7 @@ Per applicazioni reali, `ExecutorService` e altri strumenti del package `java.ut
 
 `Thread.sleep(millisecondi)` sospende temporaneamente il thread che sta eseguendo quella riga. Non sospende automaticamente tutti gli altri thread. Può lanciare `InterruptedException` se il thread viene interrotto durante l’attesa.
 
-` sleep()` non rilascia i monitor/lock `synchronized` che il thread possiede.
+`sleep()` non rilascia i monitor/lock `synchronized` che il thread possiede.
 
 <h3 style="color:#C00000"><strong><code>interrupt()</code></strong></h3>
 
@@ -78,7 +98,7 @@ Se un metodo non può gestire l’interruzione, in genere deve ripristinare il f
 
 <h3 style="color:#C00000"><strong><code>join()</code> E <code>isAlive()</code></strong></h3>
 
-`join()` fa aspettare il thread chiamante finché il thread indicato termina. `join(timeout)` attende al massimo il tempo specificato: il timeout limita l’attesa del chiamante, ma non interrompe il thread osservato.
+`join()` fa aspettare il thread chiamante finché il thread indicato termina. `join(timeout)` con un timeout positivo attende al massimo il tempo specificato (`join(0)` equivale a un’attesa senza limite): il timeout limita l’attesa del chiamante, ma non interrompe il thread osservato.
 
 `isAlive()` restituisce `true` se il thread è stato avviato e non è ancora terminato. `join()` può a sua volta lanciare `InterruptedException` se viene interrotto il thread che sta aspettando.
 
@@ -94,12 +114,12 @@ Il modello concettuale spesso descritto è: creato, pronto, in esecuzione, in at
 - **RUNNABLE:** thread avviato ed eseguibile; la JVM non distingue qui lo stato “ready” dall’esecuzione effettiva su CPU;
 - **BLOCKED:** attende di acquisire un monitor `synchronized` già posseduto da un altro thread;
 - **WAITING:** attende senza scadenza, per esempio su `wait()`, `join()` senza timeout o `LockSupport.park()`;
-- **TIMED_WAITING:** attende con scadenza, per esempio su `sleep()`, `wait(timeout)` o `join(timeout)`;
+- **TIMED_WAITING:** attende con scadenza, per esempio su `sleep()`, `wait(timeout)`, `join(timeout)`, `LockSupport.parkNanos()` o `parkUntil()`;
 - **TERMINATED:** esecuzione terminata.
 
 `Thread.yield()` suggerisce allo scheduler che il thread corrente può cedere la CPU. È solo un suggerimento: non garantisce che il thread cambi stato o che un altro thread venga eseguito immediatamente.
 
-In `WAITING`, un thread può essere risvegliato da notifiche, dalla fine del thread atteso o da altre operazioni previste dal meccanismo usato. Il risveglio non implica che inizi subito a eseguire: deve prima soddisfare le condizioni necessarie (per esempio riacquisire il lock) e ottenere tempo CPU.
+In `WAITING`, un thread può essere risvegliato da notifiche, dalla fine del thread atteso o da altre operazioni previste dal meccanismo usato: per esempio `LockSupport.unpark(thread)` per una sospensione con `park()`. Il risveglio non implica che inizi subito a eseguire: deve prima soddisfare le condizioni necessarie (per esempio riacquisire il lock) e ottenere tempo CPU.
 
 <h2 style="color:#C00000"><strong>8. CONDIVISIONE DEI DATI, INTERFERENZA E RACE CONDITION</strong></h2>
 
@@ -118,21 +138,83 @@ Una relazione **happens-before** ordina operazioni e rende visibili gli effetti 
 - Un thread che rilascia un monitor e un altro che poi acquisisce lo stesso monitor hanno una relazione di visibilità.
 - Una scrittura su una variabile `volatile` è visibile alle letture successive di quella stessa variabile secondo le regole del modello di memoria.
 
+<h3 style="color:#C00000"><strong>ESEMPI ORIGINALI: VISIBILITÀ DI start() E join()</strong></h3>
+
+Frammenti da inserire in un metodo `main` che dichiara o gestisce `InterruptedException`:
+
+```java
+int dato = 42;
+Thread t = new Thread(() -> System.out.println(dato));
+t.start();
+t.join();
+```
+
+Il valore preparato prima di `start()` è visibile al nuovo thread. Per leggere invece un risultato scritto dal thread, attendi la sua terminazione:
+
+```java
+int[] risultato = {0};
+Thread t = new Thread(() -> risultato[0] = 42);
+t.start();
+t.join();
+System.out.println(risultato[0]); // 42
+```
+
+Un `join(timeout)` che scade mentre il thread è ancora vivo non dà la garanzia della sua terminazione: ricontrolla `isAlive()`.
+
 <h3 style="color:#C00000"><strong><code>volatile</code></strong></h3>
 
 `volatile` assicura visibilità e ordinamento per accessi alla variabile volatile, ed è utile come segnale semplice:
 
 ```java
-volatile boolean pronto = false;
-int dato;
+public class Segnale {
+    private volatile boolean pronto = false;
+    private int dato;
 
-// Produttore
-dato = 42;
-pronto = true;
+    public void produci() {
+        dato = 42;
+        pronto = true;
+    }
 
-// Consumatore: dopo aver osservato pronto == true,
-// vede anche la scrittura precedente di dato.
+    public void consuma() {
+        if (pronto) {
+            System.out.println(dato); // 42 se ha osservato pronto == true
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Segnale stato = new Segnale();
+        Thread produttore = new Thread(stato::produci);
+        Thread consumatore = new Thread(stato::consuma);
+        produttore.start();
+        consumatore.start();
+        produttore.join();
+        consumatore.join();
+    }
+}
 ```
+
+`volatile` si applica qui a un **campo dell’oggetto condiviso**, non a una variabile locale del `main`. Il consumatore potrebbe eseguire il controllo prima del produttore e non stampare nulla: il flag garantisce la visibilità quando legge `true`, non l’ordine di scheduling né un’attesa automatica.
+
+Per un segnale di arresto, l’altro esempio dei tuoi appunti è:
+
+```java
+public class ArrestoVolatile implements Runnable {
+    private volatile boolean fermati = false;
+
+    public void chiediArresto() {
+        fermati = true;
+    }
+
+    @Override
+    public void run() {
+        while (!fermati) {
+            // Un piccolo passo di lavoro; ciclo attivo solo a scopo didattico.
+        }
+    }
+}
+```
+
+Il segnale viene controllato tra un passo e l’altro; non sblocca da solo operazioni di I/O o altre attese.
 
 `volatile` non rende atomiche operazioni composte. Per esempio `volatile int contatore; contatore++;` può perdere incrementi perché l’incremento consiste di lettura, calcolo e scrittura.
 
@@ -175,7 +257,7 @@ La scelta del lock deve riflettere quali dati protegge. Più lock possono aument
 
 <h2 style="color:#C00000"><strong>12. OPERAZIONI ATOMICHE</strong></h2>
 
-Un’operazione atomica appare come una singola azione indivisibile agli altri thread. `AtomicInteger` offre operazioni atomiche come `incrementAndGet()`:
+Un’operazione atomica appare come una singola azione indivisibile agli altri thread. `AtomicInteger` (da importare con `java.util.concurrent.atomic.AtomicInteger`) offre operazioni atomiche come `incrementAndGet()`. I campi e i metodi seguenti appartengono a una classe:
 
 ```java
 private final AtomicInteger c = new AtomicInteger(0);
@@ -201,9 +283,9 @@ public int value() {
 
 La legge di Amdahl stima il limite al guadagno ottenibile parallelizzando un programma:
 
-\[
+$$
 S = \frac{1}{(1-p)+\frac{p}{n}}
-\]
+$$
 
 - `S`: velocità relativa rispetto all’esecuzione con un solo processore;
 - `p`: frazione parallelizzabile;
@@ -212,9 +294,9 @@ S = \frac{1}{(1-p)+\frac{p}{n}}
 
 Se il 90% del lavoro è parallelizzabile e si usano 4 processori:
 
-\[
+$$
 S = \frac{1}{0{,}1+\frac{0{,}9}{4}} \approx 3{,}08
-\]
+$$
 
 Il programma è circa 3,08 volte più veloce, non 4 volte: la parte sequenziale limita il guadagno massimo.
 
@@ -240,9 +322,27 @@ class Singleton {
 
 Questa versione crea l’istanza solo alla prima richiesta, ma non è thread-safe: due thread possono vedere `null` e creare due oggetti.
 
+- `private static instance` conserva il riferimento a livello di classe.
+- Il costruttore `private` impedisce l’uso normale di `new Singleton()` dall’esterno.
+- `getInstance()` è il punto di accesso previsto.
+- Con due thread: A legge `null`, B legge `null`, A costruisce un oggetto, B ne costruisce un altro. Il controllo e la costruzione devono quindi essere coordinati.
+
+
 <h3 style="color:#C00000"><strong>SINCRONIZZARE IL METODO</strong></h3>
 
 Dichiarare `getInstance()` `static synchronized` impedisce creazioni concorrenti e garantisce una sola istanza, ma ogni chiamata deve acquisire il lock anche dopo la creazione.
+
+Metodo da inserire nella precedente classe `Singleton`, al posto della versione non sincronizzata:
+
+```java
+public static synchronized Singleton getInstance() {
+    if (instance == null) {
+        instance = new Singleton();
+    }
+    return instance;
+}
+```
+
 
 <h3 style="color:#C00000"><strong>DOUBLE-CHECKED LOCKING</strong></h3>
 
@@ -288,11 +388,14 @@ public class Something {
 
 La JVM inizializza la classe interna al primo uso e garantisce l’inizializzazione thread-safe. Per molte applicazioni è l’approccio preferibile rispetto a gestire manualmente lock e `volatile`.
 
+Passaggi da ricordare: caricare `Something` non inizializza immediatamente `LazyHolder`; il primo `getInstance()` usa il campo `LazyHolder.INSTANCE`; l’inizializzazione della classe interna costruisce l’istanza una sola volta e la pubblica in sicurezza; le chiamate successive restituiscono lo stesso riferimento. La sola istanza non rende però automaticamente thread-safe i successivi metodi mutabili del Singleton.
+
+
 <h2 style="color:#C00000"><strong>ESEMPI DI COORDINAMENTO TRA THREAD</strong></h2>
 
-### Controllare un thread con `isAlive()` e `join(timeout)`
+<h3 style="color:#C00000"><strong>CONTROLLARE UN THREAD CON <code>isAlive()</code> E <code>join(timeout)</code></strong></h3>
 
-Il thread principale può verificare periodicamente se il thread di lavoro è terminato. `join(1000)` aspetta al massimo un secondo e poi ritorna, anche se il thread è ancora attivo:
+Ripresa dell’esempio `MessageLoop`: il thread principale può verificare periodicamente se il thread di lavoro è terminato. Nel frammento `lavoro` è già avviato e il metodo chiamante gestisce o dichiara `InterruptedException`. `join(1000)` aspetta al massimo un secondo e poi ritorna, anche se il thread è ancora attivo:
 
 ```java
 long inizio = System.currentTimeMillis();
@@ -302,15 +405,17 @@ while (lavoro.isAlive()) {
     lavoro.join(1000);
     if (System.currentTimeMillis() - inizio > pazienza
             && lavoro.isAlive()) {
+        System.out.println("Tired of waiting!");
         lavoro.interrupt();       // richiesta di arresto
         lavoro.join();            // attende la fine effettiva
     }
 }
+System.out.println("Finally!");
 ```
 
 `interrupt()` non garantisce che il thread termini: il codice di `lavoro` deve reagire. Nell’esempio didattico, se è in `sleep()`, riceve `InterruptedException` e può terminare. Senza gestione dell’interruzione, `join()` può continuare ad aspettare.
 
-### `wait()`, `notify()` e `notifyAll()`
+<h3 style="color:#C00000"><strong><code>wait()</code>, <code>notify()</code> E <code>notifyAll()</code></strong></h3>
 
 Questi metodi coordinano thread che condividono lo stesso monitor:
 
@@ -384,6 +489,22 @@ I due aggiornamenti possono procedere contemporaneamente perché usano monitor d
 
 ```java
 static synchronized void metodoDiClasse() { }
+```
+
+Equivalenza del monitor da individuare negli esercizi:
+
+```java
+public class NomeClasse {
+    public static synchronized void foo() {
+        // Usa il monitor NomeClasse.class.
+    }
+
+    public static void formaEquivalente() {
+        synchronized (NomeClasse.class) {
+            // Usa lo stesso monitor di foo().
+        }
+    }
+}
 ```
 
 Il lock di un metodo statico sincronizzato è `NomeClasse.class`, non `this`. Un metodo di istanza sincronizzato blocca la singola istanza. Per questo i due tipi di metodo possono essere eseguiti contemporaneamente.

@@ -1,6 +1,6 @@
 <h1 style="color:#C00000"><strong>SOCKET — APPUNTI PRATICI</strong></h1>
 
-Promemoria operativo per gli esercizi con socket. La teoria è in [tutti appunti/SOCKET.md](</workspace/Programmazione-distribuita/tutti%20appunti/SOCKET.md>).
+Promemoria operativo per gli esercizi con socket. La teoria è in [tutti appunti/SOCKET.md](../tutti%20appunti/SOCKET.md).
 
 <h2 style="color:#C00000"><strong>CONNESSIONE TCP</strong></h2>
 
@@ -25,7 +25,7 @@ ObjectInputStream in =
     new ObjectInputStream(socket.getInputStream());
 ```
 
-`flush()` invia i dati già scritti e rimasti nel buffer; non crea dati che non sono stati scritti.
+`flush()` forza lo scaricamento dei dati già scritti e rimasti nel buffer; non crea dati e non garantisce che il programma remoto li abbia già elaborati.
 
 <h2 style="color:#C00000"><strong>DEFINIRE L’ORDINE DEL PROTOCOLLO</strong></h2>
 
@@ -69,26 +69,59 @@ Non confondere questa logica di invocazione remota con le operazioni base di `So
 
 Esempio minimo di server TCP che accetta un client, legge una riga e risponde. È un esempio didattico per un client alla volta; un server concorrente deve gestire ogni socket accettato separatamente.
 
+Ogni classe va nel proprio file. `ServerRiga` gestisce una sola connessione e poi termina:
+
 ```java
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 
-try (ServerSocket server = new ServerSocket(5000);
-     Socket client = server.accept();
-     BufferedReader in = new BufferedReader(new InputStreamReader(
-         client.getInputStream(), StandardCharsets.UTF_8));
-     BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-         client.getOutputStream(), StandardCharsets.UTF_8))) {
-
-    String richiesta = in.readLine();
-    out.write("Ricevuto: " + richiesta);
-    out.newLine();
-    out.flush();
+public class ServerRiga {
+    public static void main(String[] args) throws IOException {
+        int porta = args.length > 0 ? Integer.parseInt(args[0]) : 5000;
+        try (ServerSocket server = new ServerSocket(porta);
+             Socket client = server.accept();
+             BufferedReader in = new BufferedReader(new InputStreamReader(
+                 client.getInputStream(), StandardCharsets.UTF_8));
+             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+                 client.getOutputStream(), StandardCharsets.UTF_8))) {
+            String richiesta = in.readLine();
+            if (richiesta != null) {
+                out.write("Ricevuto: " + richiesta);
+                out.newLine();
+                out.flush();
+            }
+        }
+    }
 }
 ```
 
-Il client crea `new Socket(host, 5000)`, scrive la richiesta seguita da `newLine()` e `flush()`, poi legge la risposta. Entrambi devono rispettare lo stesso protocollo: qui una riga in richiesta e una riga in risposta.
+Il client invia prima la richiesta e poi legge la risposta:
+
+```java
+import java.io.*;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
+
+public class ClientRiga {
+    public static void main(String[] args) throws IOException {
+        String host = args.length > 0 ? args[0] : "localhost";
+        int porta = args.length > 1 ? Integer.parseInt(args[1]) : 5000;
+        try (Socket socket = new Socket(host, porta);
+             BufferedReader in = new BufferedReader(new InputStreamReader(
+                 socket.getInputStream(), StandardCharsets.UTF_8));
+             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+                 socket.getOutputStream(), StandardCharsets.UTF_8))) {
+            out.write("Ciao");
+            out.newLine();
+            out.flush();
+            System.out.println(in.readLine());
+        }
+    }
+}
+```
+
+Avvia prima il server e poi il client. Il protocollo è una riga in richiesta e una riga in risposta; senza terminatore, `readLine()` può restare in attesa. I frammenti precedenti sugli stream sono istruzioni da inserire nel contesto di un metodo, non programmi autonomi.
 
 <h2 style="color:#C00000"><strong>CHECKLIST DI DEBUG</strong></h2>
 

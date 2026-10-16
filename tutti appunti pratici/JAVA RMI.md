@@ -51,10 +51,26 @@ public class CalcolatriceImpl extends UnicastRemoteObject
 Opzione B: se la classe deve già estendere un’altra classe, implementare l’interfaccia e esportare l’istanza:
 
 ```java
-CalcolatriceImpl oggetto = new CalcolatriceImpl();
+import java.rmi.RemoteException;
+
+// Questa classe NON estende UnicastRemoteObject.
+public class CalcolatriceSemplice implements Calcolatrice {
+    @Override
+    public int somma(int a, int b) throws RemoteException {
+        return a + b;
+    }
+}
+```
+
+Poi, nel codice di avvio del server:
+
+```java
+CalcolatriceSemplice oggetto = new CalcolatriceSemplice();
 Calcolatrice riferimento =
     (Calcolatrice) UnicastRemoteObject.exportObject(oggetto, 0);
 ```
+
+Se necessario, `CalcolatriceSemplice` può estendere una propria superclasse locale. Non esportare di nuovo un’istanza della precedente `CalcolatriceImpl`: il costruttore di `UnicastRemoteObject` l’ha già esportata e una seconda esportazione genera `ExportException`. Il nome diverso evidenzia che sono due implementazioni alternative.
 
 Esportare l’oggetto lo predispone a ricevere chiamate remote; registrarlo nel registry gli assegna un nome di ricerca. Sono due operazioni diverse.
 
@@ -68,7 +84,7 @@ Esportare l’oggetto lo predispone a ricevere chiamate remote; registrarlo nel 
 
 <h2 style="color:#C00000"><strong>PARAMETRI E OGGETTI</strong></h2>
 
-- Le classi concrete dei normali oggetti di valore che attraversano la rete devono essere serializzabili; verifica anche i campi non `transient`.
+- Le classi concrete dei normali oggetti di valore che attraversano la rete devono essere serializzabili; verifica anche gli oggetti raggiungibili dai campi d’istanza non `static` e non `transient`.
 - Un oggetto serializzato normalmente viene ricostruito come copia: modificarlo non modifica l’originale sul mittente.
 - Per passare un servizio remoto, esportalo e passa il riferimento/stub tramite la sua interfaccia, non l’implementazione concreta.
 - La serializzazione conserva i riferimenti condivisi all’interno dello stesso flusso; non crea memoria condivisa tra JVM.
@@ -77,7 +93,7 @@ Esportare l’oggetto lo predispone a ricevere chiamate remote; registrarlo nel 
 
 <h2 style="color:#C00000"><strong>PERCORSO DELLA CHIAMATA</strong></h2>
 
-Ricorda la direzione: **client → stub → livello dei riferimenti remoti → trasporto → skeleton/dispatcher → implementazione server**. La risposta torna in senso inverso. Stub e skeleton/runtime curano marshalling e unmarshalling; il trasporto cura la connessione e il trasferimento.
+Ricorda la direzione: **client → stub → riferimento remoto client → trasporto/rete → riferimento remoto server → skeleton/dispatcher → implementazione server**. La risposta torna in senso inverso. Stub e skeleton/runtime curano marshalling e unmarshalling; il trasporto cura la connessione e il trasferimento.
 
 <h2 style="color:#C00000"><strong>COMPATIBILITÀ E STRUMENTI</strong></h2>
 
@@ -126,16 +142,19 @@ public class CalcolatriceImpl extends UnicastRemoteObject
 }
 ```
 
-Server: crea l’oggetto remoto e lo registra:
+Server: crea l’oggetto remoto e lo registra. I campi statici mantengono riferimenti forti al servizio e al registry per la durata del server:
 
 ```java
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class Server {
+    private static Calcolatrice servizio;
+    private static Registry registry;
+
     public static void main(String[] args) throws Exception {
-        Calcolatrice servizio = new CalcolatriceImpl();
-        Registry registry = LocateRegistry.createRegistry(1099);
+        servizio = new CalcolatriceImpl();
+        registry = LocateRegistry.createRegistry(1099);
         registry.rebind("Calcolatrice", servizio);
     }
 }

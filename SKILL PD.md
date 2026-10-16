@@ -25,3 +25,9 @@ Usare queste preferenze in tutte le chat di programmazione distribuita che condi
 - Essere dettagliati e fedeli ai materiali originali: non ridurre gli appunti a un riassunto breve. Conservare definizioni, elenchi, passaggi, esempi e precisazioni importanti per preparare l’esame.
 - Avvicinarsi allo stile degli appunti dell’utente: titoli evidenti, definizioni in grassetto, schemi ed elenchi gerarchici, esempi esplicativi e confronti chiari. Separare comunque la teoria dalle indicazioni pratiche.
 - Riutilizzare questi file come riferimento nelle chat di programmazione distribuita che condividono lo stesso spazio.
+
+## Controllo prima della pubblicazione
+
+- Confrontare i documenti con tutti i testi ricevuti, conservando anche gli esempi importanti e distinguendo le correzioni dalle formulazioni originali.
+- Verificare firme e nomi negli esempi, indicare il contesto richiesto dai frammenti e usare collegamenti relativi al repository per GitHub.
+- Segnalare eventuali immagini solo richiamate ma non disponibili, senza inventarne il contenuto. GitHub può rimuovere il colore CSS dei titoli.

@@ -8,30 +8,30 @@ Un **sistema distribuito** è un insieme di computer o nodi autonomi, collegati 
 
 Un **modello di riferimento** è un modello concettuale, indipendente da una tecnologia specifica, che aiuta a descrivere e progettare un sistema.
 
-**RM-ODP** (*Reference Model for Open Distributed Processing*) è un modello di riferimento per l’elaborazione distribuita aperta. Descrive il sistema da punti di vista diversi e aiuta a separare i problemi. Nei tuoi appunti e nella rappresentazione didattica della lezione viene collegato a OSI tramite un layer **APPLICATION**, che riguarda la comunicazione fra applicazioni. Precisazione formale: RM-ODP non è soltanto un ulteriore livello dello stack OSI, ma un modello architetturale distinto e complementare. Per l’esame, ricorda la formulazione usata dal docente e questa distinzione concettuale.
+**RM-ODP** (*Reference Model for Open Distributed Processing*) è un modello di riferimento per l’elaborazione distribuita aperta. Descrive il sistema da punti di vista diversi e aiuta a separare i problemi. Il testo che hai inviato lo collega a OSI tramite un layer **APPLICATION**, relativo alla comunicazione fra applicazioni. Questa è la formulazione del tuo testo; senza la slide originale non si può attribuirle con certezza un significato più preciso. Precisazione formale: RM-ODP non è soltanto un ulteriore livello dello stack OSI, ma un modello architetturale distinto e complementare. Conserva quindi il collegamento annotato nel corso, distinguendolo dalla definizione formale del modello.
 
 <h2 style="color:#C00000"><strong>2. PERCHÉ SI USANO I SISTEMI DISTRIBUITI</strong></h2>
 
-### Motivazioni economiche
+<h3 style="color:#C00000"><strong>MOTIVAZIONI ECONOMICHE</strong></h3>
 
 - **Integrare sistemi aziendali:** organizzazioni diverse possono collegare infrastrutture e applicazioni già esistenti.
 - **Downsizing:** spostare funzioni da sistemi centralizzati e costosi verso più sistemi distribuiti, spesso meno costosi e più facili da espandere.
 - **Ridurre il time-to-market:** riusare componenti e integrare servizi esistenti può accelerare la realizzazione e il rilascio di un prodotto. Il riuso richiede però interfacce compatibili e integrazione ben progettata.
 
-### Motivazioni tecnologiche
+<h3 style="color:#C00000"><strong>MOTIVAZIONI TECNOLOGICHE</strong></h3>
 
 - **Riuso ed evoluzione:** adottare nuove tecnologie senza ricominciare ogni volta da zero.
 - **Integrazione di eterogeneità:** far collaborare hardware, sistemi operativi, linguaggi e servizi differenti.
 - **Condivisione delle risorse e crescita:** aggiungere nodi o servizi per distribuire il lavoro.
 - **Gestione di latenza e malfunzionamenti:** progettare la comunicazione considerando che la rete introduce ritardi e guasti parziali; il sistema distribuito non li elimina.
 
-### Leggi empiriche citate negli appunti
+<h3 style="color:#C00000"><strong>LEGGI EMPIRICHE CITATE NEGLI APPUNTI</strong></h3>
 
 Sono osservazioni storiche usate per descrivere la crescita delle risorse tecnologiche, non leggi fisiche che garantiscono una scadenza esatta:
 
-- **Legge di Moore:** la densità dei transistor (e quindi, in certe epoche, la capacità di calcolo disponibile) raddoppia approssimativamente ogni 18–24 mesi. Nei tuoi appunti è indicato un intervallo di 24 mesi.
+- **Legge di Moore — formulazione dei tuoi appunti:** numero/densità dei transistor circa raddoppiati ogni 24 mesi. È un andamento storico: non implica automaticamente che ogni programma diventi due volte più veloce.
 - **Legge di Gilder:** la capacità di trasmissione delle reti cresce molto rapidamente; negli appunti è riportato un raddoppio circa annuale.
-- **Legge di Shugart/Shugard:** crescita della capacità di memorizzazione. Nei tuoi appunti è indicato un aumento di circa dieci volte ogni quattro anni; il nome e l’intervallo possono variare nelle formulazioni didattiche.
+- **Legge di “Shugard” — nome riportato nei tuoi appunti:** capacità di memorizzazione circa decuplicata ogni quattro anni. Mantengo nome e valore come nella fonte; l’attribuzione non è verificabile da questi soli appunti.
 
 Queste regole aiutano a motivare l’evoluzione dei sistemi distribuiti: capacità di calcolo, rete e memoria crescono, ma cresce anche la necessità di collegare e coordinare risorse diverse.
 
@@ -40,8 +40,10 @@ Queste regole aiutano a motivare l’evoluzione dei sistemi distribuiti: capacit
 Queste leggi descrivono in modo approssimativo come può crescere l’utilità di una rete al crescere degli utenti. Indichiamo con `n` e `m` gli utenti attivi di due gruppi che vengono collegati.
 
 - **Sarnoff — crescita lineare:** il valore è proporzionale al numero di utenti. Unire i due gruppi porta da `n` e `m` utenti a circa `n + m` utenti/valore.
-- **Metcalfe — crescita quadratica:** il valore è proporzionale al numero di possibili connessioni a coppie, approssimativamente `N²`. Dopo l’unione il valore è circa `(n + m)²`; i collegamenti nuovi tra i due gruppi sono proporzionali a `2nm`.
+- **Metcalfe — crescita quadratica:** il valore è proporzionale al numero di possibili connessioni a coppie, approssimativamente `N²`. Dopo l’unione il valore è circa `(n + m)²`; l’aumento del modello `N²` è `2nm`. Se conti precisamente le coppie non orientate, il totale è `N(N−1)/2` e le nuove coppie tra i due gruppi sono `nm`, non `2nm`.
 - **Reed — crescita esponenziale:** nelle reti che permettono di formare molti gruppi o sottoreti, il numero di gruppi possibili può crescere come `2^N`. Nei tuoi appunti, per l’unione di gruppi di dimensione `n` e `m`, la formula è `2^n · 2^m − (2^n + 2^m) = 2^(n+m) − 2^n − 2^m`.
+
+Se vuoi contare esattamente i gruppi che includono almeno un utente di entrambe le reti, il numero è `(2^n − 1)(2^m − 1) = 2^(n+m) − 2^n − 2^m + 1`: il `+1` corregge il doppio conteggio del gruppo vuoto nella sottrazione. La formula originaria sopra è conservata come approssimazione riportata negli appunti.
 
 Sono modelli intuitivi e semplificati: il valore reale dipende da utenti attivi, qualità dei collegamenti, utilità dei servizi e possibilità concreta di interagire. Non sono formule che predicono da sole il valore economico di qualsiasi rete.
 
@@ -84,11 +86,14 @@ La **trasparenza** nasconde alcuni dettagli della distribuzione agli utenti o al
 | Locazione | La posizione fisica della risorsa. |
 | Migrazione | Lo spostamento di una risorsa o di un processo tra computer mentre continua a essere usato. |
 | Replica | La presenza di più copie della stessa risorsa e la scelta della copia utilizzata. |
-| Concorrenza/transazione | Il coordinamento necessario quando più utenti o processi lavorano sugli stessi dati. |
+| Transazioni (etichetta presente nei tuoi appunti) | Il sistema applica il coordinamento e le proprietà della transazione, così che più modifiche costituiscano un’unità coerente. |
+| Concorrenza (distinzione aggiunta) | Accessi contemporanei alla stessa risorsa vengono coordinati senza affidare ogni dettaglio al client. |
 | Malfunzionamenti | Parte del guasto e del recupero, per esempio un tentativo alternativo tramite una replica. La trasparenza completa dei guasti non è sempre possibile. |
 | Persistenza | Dove e come una risorsa viene conservata nel tempo. |
 | Scalabilità | I dettagli tecnici usati per far fronte alla crescita del carico. |
 | Prestazioni | Le decisioni con cui si cerca di migliorare velocità ed efficienza. |
+
+Nel testo originale la riga “Transazioni” descrive soprattutto accessi concorrenti: i due temi sono collegati, ma non equivalenti. La concorrenza riguarda l’interferenza tra attività; una transazione aggiunge un’unità di lavoro e regole come commit/rollback.
 
 **Prestazioni** e **scalabilità** sono collegate ma diverse: le prestazioni riguardano velocità o efficienza nelle condizioni correnti; la scalabilità riguarda il mantenimento di un servizio adeguato quando il carico cresce.
 
@@ -166,11 +171,13 @@ CORBA mira a far collaborare oggetti scritti in linguaggi diversi. È un esempio
 
 <h3 style="color:#C00000"><strong>JAVA RMI</strong></h3>
 
-**Java Remote Method Invocation** permette a un programma Java di invocare metodi di oggetti remoti. Il dettaglio di interfacce, stub, registry e serializzazione è raccolto in [Java RMI](</workspace/Programmazione-distribuita/tutti%20appunti/JAVA%20RMI.md>).
+**Java Remote Method Invocation** permette a un programma Java di invocare metodi di oggetti remoti. Il dettaglio di interfacce, stub, registry e serializzazione è raccolto in [Java RMI](JAVA%20RMI.md).
 
 <h3 style="color:#C00000"><strong>.NET E .NET REMOTING — SLIDE 29</strong></h3>
 
 Il **.NET Framework** è la piattaforma di sviluppo ed esecuzione illustrata dalla slide; il **CLR** esegue programmi .NET e fornisce servizi comuni a linguaggi come C# e Visual Basic. **.NET Remoting** è una tecnologia storica per comunicare tra oggetti in processi o macchine diversi. La slide menziona anche la successiva **Windows Communication Foundation (WCF)**.
+
+La slide 29 collega storicamente questi meccanismi anche a **COM e DCOM**: vanno riconosciuti come predecessori nel percorso della lezione.
 
 Sono tecnologie legacy rispetto agli strumenti moderni delle rispettive piattaforme: .NET Remoting non è il modello da scegliere per nuove applicazioni .NET moderne; WCF è anch’esso una tecnologia di generazioni precedenti, con supporto dipendente dalla versione. Gli esempi servono a capire l’evoluzione del middleware.
 
@@ -181,11 +188,21 @@ Le applicazioni enterprise possono separare:
 - **livello di presentazione**, che prepara ciò che vede l’utente;
 - **livello di business**, che applica le regole dell’applicazione e comunica con i dati o con sistemi legacy.
 
-Gli **Enterprise JavaBeans (EJB)**, oggi Jakarta Enterprise Beans, sono componenti enterprise ospitati da un **container/application server**. Il container può gestire servizi come sicurezza, transazioni e persistenza, riducendo la necessità di implementare manualmente ogni funzione infrastrutturale.
+Gli **Enterprise JavaBeans (EJB)**, oggi Jakarta Enterprise Beans, sono componenti enterprise ospitati da un **container**, tipicamente all’interno di un application server. La slide 31 sottolinea sei punti:
+
+1. **Riuso e minore complessità:** combinare componenti già realizzati.
+2. **Presentazione separata dal business:** sviluppare e scalare le due responsabilità in modo diverso.
+3. **Trasparenze di accesso, locazione e migrazione:** ridurre i dettagli distributivi gestiti dall’applicazione, nei limiti del sistema impiegato.
+4. **Modello a componenti:** moduli riutilizzabili, combinabili e distribuibili anche in forma binaria.
+5. **Container:** ambiente che gestisce componenti e servizi come sicurezza e transazioni; la persistenza dipende dal modello/versione e dall’integrazione adottata.
+6. **Middleware implicito:** dichiarare servizi e politiche lasciando che il container li applichi.
+
+Nel testo del corso Java RMI è indicato come supporto alle invocazioni dei componenti Java distribuiti, inclusi gli EJB esposti da remoto. Il contratto può però prevedere anche una vista locale: non ogni chiamata a un componente EJB attraversa necessariamente la rete.
+
 
 <h2 style="color:#C00000"><strong>10. RIEPILOGO E FILO CONDUTTORE — SLIDE 30 E 38–40</strong></h2>
 
-Le slide 30 e 38 presentano il piano della lezione; la 39 riassume il ruolo degli oggetti distribuiti (riuso, interoperabilità ed evoluzione architetturale); la 40 anticipa il passaggio dai socket, a basso livello, agli oggetti remoti.
+Il piano esplicito è: **introduzione e motivazioni → evoluzione da RPC agli oggetti → esempi CORBA/.NET Remoting/Java RMI → conclusioni**. La slide 30 evidenzia gli esempi, la 38 le conclusioni; la 39 riassume il ruolo degli oggetti distribuiti (riuso, interoperabilità ed evoluzione architetturale); la 40 anticipa il passaggio dai socket, a basso livello, agli oggetti remoti.
 
 L’evoluzione va dalla comunicazione a basso livello con i socket, a RPC, fino a oggetti e componenti distribuiti. Ogni passaggio introduce un’astrazione che nasconde parte dei dettagli tecnici. Il middleware centralizza comunicazione e servizi comuni; l’applicazione definisce le responsabilità dei componenti e le regole di business. Scalabilità e tolleranza ai guasti sono obiettivi progettuali, non proprietà automatiche degli oggetti remoti.
 
