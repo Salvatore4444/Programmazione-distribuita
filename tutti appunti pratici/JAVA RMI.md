@@ -1,8 +1,8 @@
-<h1 style="color:#C00000"><strong>Java RMI — Appunti pratici</strong></h1>
+<h1 style="color:#C00000"><strong>JAVA RMI — APPUNTI PRATICI</strong></h1>
 
 Solo promemoria operativi da applicare negli esercizi.
 
-<h2 style="color:#C00000"><strong>Checklist di implementazione</strong></h2>
+<h2 style="color:#C00000"><strong>CHECKLIST DI IMPLEMENTAZIONE</strong></h2>
 
 1. Individua le operazioni che il server deve offrire.
 2. Dichiara un’interfaccia remota `extends Remote`.
@@ -15,7 +15,7 @@ Solo promemoria operativi da applicare negli esercizi.
 9. Nel client esegui il `lookup`, assegna il risultato al tipo dell’interfaccia e invoca il metodo.
 10. Gestisci `RemoteException` e considera ritardi, server non disponibile e interruzioni della rete.
 
-<h2 style="color:#C00000"><strong>Interfaccia remota</strong></h2>
+<h2 style="color:#C00000"><strong>INTERFACCIA REMOTA</strong></h2>
 
 ```java
 import java.rmi.Remote;
@@ -31,7 +31,7 @@ public interface Calcolatrice extends Remote {
 - Il client dipende dall’interfaccia, non dalla classe concreta server.
 - Un metodo `public` della classe server non è esposto via RMI se non compare nell’interfaccia remota.
 
-<h2 style="color:#C00000"><strong>Implementazione ed esportazione</strong></h2>
+<h2 style="color:#C00000"><strong>IMPLEMENTAZIONE ED ESPORTAZIONE</strong></h2>
 
 Opzione A: estendere `UnicastRemoteObject`:
 
@@ -58,7 +58,7 @@ Calcolatrice riferimento =
 
 Esportare l’oggetto lo predispone a ricevere chiamate remote; registrarlo nel registry gli assegna un nome di ricerca. Sono due operazioni diverse.
 
-<h2 style="color:#C00000"><strong>Registry, stub e client</strong></h2>
+<h2 style="color:#C00000"><strong>REGISTRY, STUB E CLIENT</strong></h2>
 
 - Tratta il registry come una mappa nome → riferimento remoto.
 - Il server registra il riferimento; il client fa `lookup` e ottiene uno stub.
@@ -66,7 +66,7 @@ Esportare l’oggetto lo predispone a ricevere chiamate remote; registrarlo nel 
 - Dopo il `lookup`, le invocazioni vanno al servizio tramite lo stub; il registry non esegue né inoltra ogni chiamata.
 - Il riferimento non garantisce che il server sia sempre raggiungibile.
 
-<h2 style="color:#C00000"><strong>Parametri e oggetti</strong></h2>
+<h2 style="color:#C00000"><strong>PARAMETRI E OGGETTI</strong></h2>
 
 - Le classi concrete dei normali oggetti di valore che attraversano la rete devono essere serializzabili; verifica anche i campi non `transient`.
 - Un oggetto serializzato normalmente viene ricostruito come copia: modificarlo non modifica l’originale sul mittente.
@@ -75,11 +75,11 @@ Esportare l’oggetto lo predispone a ricevere chiamate remote; registrarlo nel 
 - Non confondere `servizio = null` (cambia la variabile locale) con una chiamata remota a un metodo che modifica lo stato sul server.
 - Valida i dati deserializzati: la serializzazione non li rende fidati.
 
-<h2 style="color:#C00000"><strong>Percorso della chiamata</strong></h2>
+<h2 style="color:#C00000"><strong>PERCORSO DELLA CHIAMATA</strong></h2>
 
 Ricorda la direzione: **client → stub → livello dei riferimenti remoti → trasporto → skeleton/dispatcher → implementazione server**. La risposta torna in senso inverso. Stub e skeleton/runtime curano marshalling e unmarshalling; il trasporto cura la connessione e il trasferimento.
 
-<h2 style="color:#C00000"><strong>Compatibilità e strumenti</strong></h2>
+<h2 style="color:#C00000"><strong>COMPATIBILITÀ E STRUMENTI</strong></h2>
 
 - Tieni interfacce e tipi condivisi disponibili sia a client sia a server.
 - Usa classi compatibili tra le parti; considera `serialVersionUID` se le versioni possono differire.
@@ -87,10 +87,74 @@ Ricorda la direzione: **client → stub → livello dei riferimenti remoti → t
 - `rmic` e stub statici appartengono alle procedure legacy; usali solo se l’esercizio o il JDK richiesto li prevedono.
 - Non copiare policy permissive come `AllPermission` senza necessità. Il Security Manager delle slide è storico e disabilitato permanentemente da JDK 24.
 
-<h2 style="color:#C00000"><strong>Adapter negli esercizi</strong></h2>
+<h2 style="color:#C00000"><strong>ADAPTER NEGLI ESERCIZI</strong></h2>
 
 Se il client richiede un’interfaccia diversa da quella della classe già disponibile, crea un Adapter che esponga l’interfaccia attesa e traduca le chiamate verso la classe adattata.
 
-<h2 style="color:#C00000"><strong>Sequenza rapida</strong></h2>
+<h2 style="color:#C00000"><strong>SEQUENZA RAPIDA</strong></h2>
 
 **Interfaccia → implementazione → esportazione → compilazione → avvio registry → registrazione server → avvio client → lookup → invocazione → gestione errori.**
+
+<h2 style="color:#C00000"><strong>ESEMPIO COMPLETO: SERVER E CLIENT</strong></h2>
+
+Interfaccia comune:
+
+```java
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface Calcolatrice extends Remote {
+    int somma(int a, int b) throws RemoteException;
+}
+```
+
+Implementazione server:
+
+```java
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+public class CalcolatriceImpl extends UnicastRemoteObject
+        implements Calcolatrice {
+    public CalcolatriceImpl() throws RemoteException {
+        super();
+    }
+
+    public int somma(int a, int b) throws RemoteException {
+        return a + b;
+    }
+}
+```
+
+Server: crea l’oggetto remoto e lo registra:
+
+```java
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+public class Server {
+    public static void main(String[] args) throws Exception {
+        Calcolatrice servizio = new CalcolatriceImpl();
+        Registry registry = LocateRegistry.createRegistry(1099);
+        registry.rebind("Calcolatrice", servizio);
+    }
+}
+```
+
+Client: trova lo stub e invoca il metodo:
+
+```java
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+public class Client {
+    public static void main(String[] args) throws Exception {
+        Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+        Calcolatrice servizio =
+            (Calcolatrice) registry.lookup("Calcolatrice");
+        System.out.println(servizio.somma(2, 3));
+    }
+}
+```
+
+Nel caso di esportazione esplicita, registra il riferimento restituito da `UnicastRemoteObject.exportObject(...)`. Non registrare per errore l’oggetto non esportato. In un esercizio reale gestisci le eccezioni invece di lasciare `throws Exception` nel `main`.

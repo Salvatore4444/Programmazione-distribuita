@@ -22,4 +22,6 @@ Usare queste preferenze in tutte le chat di programmazione distribuita che condi
 - Tenere separati gli appunti pratici: includere solo regole operative, checklist ed esempi utili negli esercizi.
 - Quando l’utente chiede una regola pratica o una preferenza di studio, aggiungerla al presente documento o alla sezione pratica adatta se non è già presente.
 - Usare titoli degli argomenti rossi e in grassetto nei file degli appunti; mantenere la stessa formattazione nei nuovi appunti.
+- Essere dettagliati e fedeli ai materiali originali: non ridurre gli appunti a un riassunto breve. Conservare definizioni, elenchi, passaggi, esempi e precisazioni importanti per preparare l’esame.
+- Avvicinarsi allo stile degli appunti dell’utente: titoli evidenti, definizioni in grassetto, schemi ed elenchi gerarchici, esempi esplicativi e confronti chiari. Separare comunque la teoria dalle indicazioni pratiche.
 - Riutilizzare questi file come riferimento nelle chat di programmazione distribuita che condividono lo stesso spazio.
