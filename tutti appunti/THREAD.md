@@ -20,6 +20,8 @@ Con un solo core, il sistema alterna l’esecuzione dei thread. Con più core, t
 
 Questi fenomeni non sono esclusivi dei sistemi multicore, ma possono influenzare prestazioni e coordinamento quando si lavora in concorrenza.
 
+![Esempio originale di incremento concorrente con uno o più core](immagini/thread-incrementi-core.png)
+
 <h2 style="color:#C00000"><strong>2. PROGRAMMAZIONE DISTRIBUITA, PROCESSI E THREAD</strong></h2>
 
 - **Programmazione distribuita:** attività su computer diversi comunicano tramite rete.
@@ -77,6 +79,10 @@ t.start();
 - Un oggetto `Thread` terminato non può essere riavviato chiamando di nuovo `start()`.
 
 Per applicazioni reali, `ExecutorService` e altri strumenti del package `java.util.concurrent` aiutano a gestire gruppi di attività senza creare manualmente un thread per ogni lavoro.
+
+![Due modalità classiche per avviare un thread](immagini/thread-vs-runnable.png)
+
+![Classe HelloRunnable: separare lavoro ed esecuzione](immagini/runnable-esempio.png)
 
 <h2 style="color:#C00000"><strong>6. SOSPENSIONE, INTERRUZIONE E ATTESA</strong></h2>
 
@@ -218,6 +224,8 @@ Il segnale viene controllato tra un passo e l’altro; non sblocca da solo opera
 
 `volatile` non rende atomiche operazioni composte. Per esempio `volatile int contatore; contatore++;` può perdere incrementi perché l’incremento consiste di lettura, calcolo e scrittura.
 
+![Immagine originale su volatile, ora disponibile](immagini/volatile-flag.png)
+
 <h2 style="color:#C00000"><strong>10. SINCRONIZZAZIONE E MONITOR</strong></h2>
 
 Ogni oggetto Java ha un **lock intrinseco**, detto anche monitor. Un metodo o blocco `synchronized` acquisisce il monitor associato, esegue la sezione protetta e lo rilascia quando esce, anche se esce per un’eccezione.
@@ -238,6 +246,8 @@ Il blocco protegge solo il codice al suo interno e solo rispetto ai thread che u
 - Un metodo statico sincronizzato e un metodo sincronizzato su una singola istanza usano lock diversi e possono quindi procedere contemporaneamente.
 
 I costruttori non possono essere dichiarati `synchronized`. È comunque importante non rendere un oggetto visibile ad altri thread prima che la sua costruzione sia terminata. Se il costruttore avvia un thread che usa `this`, oppure registra `this` in un oggetto condiviso, l’istanza può “sfuggire” prima che i campi siano inizializzati: si parla di **leaking this/escape**. Completa prima la costruzione, poi pubblica l’oggetto o avvia il thread.
+
+![this escape: oggetto pubblicato prima che il costruttore termini](immagini/this-escape.png)
 
 <h2 style="color:#C00000"><strong>11. SINCRONIZZAZIONE A GRANA FINE</strong></h2>
 
@@ -541,3 +551,267 @@ Il Singleton è adatto solo quando il dominio richiede davvero una singola istan
 - Identifica il monitor usato da un metodo `synchronized` di istanza, da uno statico e da un blocco esplicito.
 - Distingui deadlock, starvation e livelock.
 - Applica la legge di Amdahl e spiega perché la parte sequenziale limita il guadagno.
+
+<h2 style="color:#C00000"><strong>DOMANDE ORIGINALI DEL VAULT: THREAD E SINCRONIZZAZIONE</strong></h2>
+
+Tutte le 56 domande e risposte del tuo file `2 DOMANDE/3 THREAD.md`, incluse le combinazioni di lock di istanza/statici e le varianti del Singleton.
+
+<h3 style="color:#C00000"><strong>T1. QUAL È LA DIFFERENZA TRA UN PROCESSO E UN THREAD? E QUALI SONO LE SOMIGLIANZE?</strong></h3>
+
+Un processo è un programma in esecuzione con il proprio spazio di memoria e le proprie risorse. Un thread è un flusso di esecuzione dentro un processo.
+`Thread` dello stesso processo condividono heap e risorse, ma ciascuno ha il proprio stack e il proprio contesto di esecuzione. Processi e thread eseguono istruzioni e possono essere pianificati dal sistema operativo; processi diversi sono però più isolati tra loro.
+
+<h3 style="color:#C00000"><strong>T2. PERCHÉ DIRE CHE UN THREAD È UN «PROCESSO LIGHT-WEIGHT» È TECNICAMENTE SCORRETTO, ANCHE SE È UN’ESPRESSIONE DIFFUSA?</strong></h3>
+
+È un paragone informale che allude al fatto che creare e passare da un thread può costare meno che fare lo stesso con un processo. Tecnicamente, però, il processo è un contenitore di risorse e di memoria isolata, mentre il thread è un flusso di esecuzione che vive dentro quel contenitore. Un thread non è un processo più piccolo: è un’entità diversa, con risorse condivise con gli altri thread del processo.
+
+<h3 style="color:#C00000"><strong>T3. QUALI SONO ESEMPI DI APPLICAZIONI CHE HANNO NECESSITÀ DI ESSERE MULTITHREAD?</strong></h3>
+
+Un server può gestire più richieste contemporaneamente; un’interfaccia grafica può restare reattiva mentre svolge un lavoro lungo; un browser può caricare più contenuti; un gioco può separare grafica, input e simulazione; un’app può scaricare un file mentre permette all’utente di continuare a usarla. Il multithreading è utile quando ci sono attività indipendenti o attese che possono sovrapporsi.
+
+<h3 style="color:#C00000"><strong>T4. COME USA UN SERVER IL POOL DI THREAD PER OTTIMIZZARE LE PRESTAZIONI?</strong></h3>
+
+Il server mantiene un insieme di thread già creati. Quando arriva una richiesta, la assegna a un thread disponibile; terminato il lavoro, quel thread torna nel pool.
+Così si evita di creare e distruggere un thread per ogni richiesta e si limita il numero di lavori simultanei, contenendo l’uso di memoria e CPU. Se tutti i thread sono occupati, le richieste possono attendere in una coda o essere rifiutate secondo la configurazione.
+
+<h3 style="color:#C00000"><strong>T5. ILLUSTRARE IL DIAGRAMMA DEGLI STATI DI UN THREAD IN JAVA</strong></h3>
+
+Il diagramma didattico mostra: New, `Runnable`, Waiting, Timed Waiting, Blocked e Terminated. `Runnable` viene spesso disegnato come Ready (pronto, in attesa della CPU) e Running (in esecuzione sulla CPU).
+Un thread creato è New; dopo `start()` diventa eseguibile. Durante il lavoro può attendere una notifica, un tempo o un lock. Quando `run()` termina, diventa Terminated. Nella API Java, invece, Ready e Running non sono stati distinti: entrambi rientrano in `RUNNABLE`.
+
+<h3 style="color:#C00000"><strong>T6. COME SI PUÒ CREARE UN THREAD IN JAVA E QUALI SONO I VANTAGGI E GLI SVANTAGGI DELLE DUE TECNICHE POSSIBILI?</strong></h3>
+
+Le due tecniche classiche sono estendere `Thread` oppure implementare `Runnable`.
+
+- Estendere `Thread`: si ridefinisce `run()` e si chiama `start()` sull’oggetto. È semplice, ma la classe non può estendere un’altra classe e il compito è legato direttamente al thread.
+- Implementare `Runnable`: si definisce il compito in `run()` e lo si passa a un `Thread`. Separa il lavoro dal meccanismo di esecuzione, permette di estendere un’altra classe e si integra meglio con i pool. In genere è la scelta preferibile.
+
+In entrambi i casi, per avviare un nuovo flusso si chiama `start()`, non `run()` direttamente.
+
+<h3 style="color:#C00000"><strong>T7. QUANDO SI INVOCA IL METODO <code>start()</code> SU UN THREAD, COSA SUCCEDE?</strong></h3>
+
+`start()` chiede alla JVM di avviare un nuovo flusso di esecuzione. Il thread diventa eseguibile e la JVM/sistema operativo lo pianifica; a un certo punto viene chiamato `run()` su quel nuovo flusso. `start()` ritorna senza aspettare che `run()` finisca. Sullo stesso oggetto `Thread` si può chiamare `start()` una sola volta.
+
+<h3 style="color:#C00000"><strong>T8. QUANDO SI INVOCA IL METODO <code>run()</code> SU UN THREAD, COSA SUCCEDE?</strong></h3>
+
+Se si chiama `run()` direttamente, il suo codice viene eseguito come una normale chiamata di metodo nel thread corrente. Non viene creato né avviato un nuovo flusso. Il chiamante prosegue solo quando `run()` ritorna, come accade per qualunque chiamata sincrona.
+
+<h3 style="color:#C00000"><strong>T9. QUANDO SI INVOCA <code>start()</code> SU UN THREAD, IL THREAD VIENE ESEGUITO: VERO O FALSO?</strong></h3>
+
+Vero nel senso che `start()` avvia un nuovo flusso e rende il thread eseguibile. Non significa che il suo codice venga eseguito immediatamente: il momento in cui riceve la CPU dipende dallo scheduler.
+
+<h3 style="color:#C00000"><strong>T10. QUANDO SI INVOCA <code>run()</code> SU UN THREAD, IL THREAD VIENE ESEGUITO: VERO O FALSO?</strong></h3>
+
+Dipende da cosa si intende. Il codice di `run()` viene eseguito se lo si chiama, ma viene eseguito dal thread chiamante. Non parte un nuovo thread. Per avviare un flusso separato bisogna chiamare `start()`.
+
+<h3 style="color:#C00000"><strong>T11. QUAL È LA DIFFERENZA TRA I METODI <code>run()</code> E <code>start()</code> DI UN THREAD?</strong></h3>
+
+`run()` contiene il compito da eseguire. `start()` avvia un nuovo flusso e fa sì che la JVM invochi `run()` su quel flusso. Chiamare `run()` direttamente è una normale chiamata di metodo; chiamare `start()` avvia un thread distinto.
+
+<h3 style="color:#C00000"><strong>T12. COSA SONO GLI INTERRUPT SU UN THREAD E QUALI METODI SONO A DISPOSIZIONE PER TRATTARLI O GESTIRLI?</strong></h3>
+
+Un interrupt è una richiesta cooperativa a un thread di interrompere o rivedere il proprio lavoro: non lo uccide forzatamente. Si invia con `interrupt()`. Si può controllare il flag con `isInterrupted()`; `Thread.interrupted()` controlla il thread corrente e azzera il flag.
+Se il thread è in `sleep()`, `wait()` o `join()`, l’interrupt può far lanciare InterruptedException; il codice deve catturarla o dichiararla. Spesso, se non può gestirla lì, la ricattiva con `Thread.currentThread().interrupt()` e poi termina o propaga la richiesta.
+
+<h3 style="color:#C00000"><strong>T13. QUALI SONO GLI STATI DEL DIAGRAMMA DI STATO DI UN THREAD?</strong></h3>
+
+Gli stati ufficiali di `Thread.State` sono `NEW`, `RUNNABLE`, `BLOCKED`, `WAITING`, `TIMED_WAITING` e `TERMINATED`. `RUNNABLE` comprende sia il thread pronto sia quello che sta effettivamente usando la CPU. Il diagramma delle dispense separa concettualmente Ready e Running, ma Java non li espone come stati distinti.
+
+<h3 style="color:#C00000"><strong>T14. COME PASSA UN THREAD DALLO STATO NEW A <code>Runnable</code>?</strong></h3>
+
+Dopo la creazione, per esempio con `new Thread(compito)`, il thread è `NEW`. La chiamata `t.start()` lo rende eseguibile e lo porta a `RUNNABLE`. Il thread non può essere riavviato chiamando `start()` una seconda volta.
+
+<h3 style="color:#C00000"><strong>T15. COME PASSA UN THREAD DA <code>Runnable</code> A TIMED WAITING E COME NE ESCE?</strong></h3>
+
+Entra in `TIMED_WAITING` quando attende per un tempo limitato, per esempio con `Thread.sleep(tempo)`, `wait(tempo)`, `join(tempo)`, o con alcune operazioni di LockSupport. Esce allo scadere del tempo o quando viene risvegliato/interrotto, a seconda del metodo. Può poi tornare eseguibile; se deve riacquisire un lock, potrebbe dover attendere ancora.
+
+<h3 style="color:#C00000"><strong>T16. COME PASSA UN THREAD DA <code>Runnable</code> A WAITING E COME NE ESCE?</strong></h3>
+
+Può entrare in `WAITING` chiamando `wait()` senza timeout, `join()` senza timeout o LockSupport.`park()`. Si risveglia, rispettivamente, con `notify()`/`notifyAll()` (poi deve riacquisire il monitor), con la terminazione del thread atteso o con un `unpark()`/interrupt secondo il meccanismo usato. Dopo il risveglio può dover competere per un lock prima di proseguire.
+
+<h3 style="color:#C00000"><strong>T17. COME PASSA UN THREAD DA <code>Runnable</code> A BLOCKED E COME NE ESCE?</strong></h3>
+
+Diventa `BLOCKED` quando cerca di entrare in una sezione `synchronized` il cui monitor è già posseduto da un altro thread. Esce da `BLOCKED` quando ottiene quel monitor, cioè quando l’altro thread lo rilascia. `BLOCKED` indica l’attesa per entrare in un monitor, non ogni possibile attesa di risorsa.
+
+<h3 style="color:#C00000"><strong>T18. PERCHÉ LO STATO <code>Runnable</code> È STRUTTURATO NEI SOTTOSTATI READY E RUNNING E COME SI PASSA DALL’UNO ALL’ALTRO?</strong></h3>
+
+È una distinzione utile per spiegare la pianificazione: Ready significa che il thread può correre ma aspetta la CPU; Running significa che in quel momento usa la CPU. Lo scheduler può selezionarlo (Ready → Running) o sospenderlo/preemptarlo (Running → Ready). Sono sottostati concettuali: la API Java li riunisce in `RUNNABLE`.
+
+<h3 style="color:#C00000"><strong>T19. QUALI SONO I POSSIBILI TIPI DI ERRORE GENERATI DAI THREAD?</strong></h3>
+
+Tra i problemi tipici ci sono interferenza tra operazioni, race condition, visibilità o inconsistenza della memoria, deadlock, starvation e livelock. Possono inoltre verificarsi eccezioni nel codice del thread. Non tutti sono errori lanciati come eccezioni: molti sono comportamenti errati del programma che dipendono dall’interleaving.
+
+<h3 style="color:#C00000"><strong>T20. CHE COS’È L’INTERFERENZA TRA THREAD E COME SI RISOLVE?</strong></h3>
+
+È l’intreccio di operazioni concorrenti su uno stesso dato che porta a un risultato scorretto. Per esempio, due incrementi possono leggere entrambi 5 e scrivere entrambi 6, perdendo un incremento.
+Si risolve proteggendo l’intera operazione con lo stesso lock (per esempio `synchronized`) oppure usando un’operazione atomica, come `AtomicInteger.incrementAndGet()`.
+
+<h3 style="color:#C00000"><strong>T21. CHE COS’È L’INCONSISTENZA DELLA MEMORIA E COME SI RISOLVE?</strong></h3>
+
+È il problema per cui un thread non ha una garanzia di vedere una modifica fatta da un altro thread, o non vede in modo coerente i dati associati. Il codice può avere una race di visibilità.
+Si stabilisce una relazione di sincronizzazione: per esempio con `synchronized` sullo stesso monitor, con una variabile `volatile` usata correttamente, oppure con `start()`, `join()` e strumenti concorrenti che documentano le proprie garanzie.
+
+<h3 style="color:#C00000"><strong>T22. CHE COS’È UNA RACE CONDITION?</strong></h3>
+
+È una condizione in cui il risultato dipende dall’ordine o dai tempi con cui thread diversi eseguono operazioni concorrenti. Se quell’ordine non è controllato e influisce sulla correttezza, il programma può produrre risultati diversi o sbagliati.
+
+<h3 style="color:#C00000"><strong>T23. PERCHÉ I BUG DOVUTI A RACE CONDITION SONO PARTICOLARMENTE COMPLESSI DA TRATTARE?</strong></h3>
+
+L’interleaving cambia da un’esecuzione all’altra; perciò il difetto può comparire solo raramente. Inoltre, log e debugger modificano i tempi e possono far sparire il problema. Per riprodurlo e correggerlo servono spesso ragionamento sulle interazioni e test ripetuti.
+
+<h3 style="color:#C00000"><strong>T24. CHE COS’È LA RELAZIONE HAPPENS-BEFORE?</strong></h3>
+
+È una relazione definita dal modello di memoria Java. Se un’azione A happens-before un’azione B, gli effetti di A sono visibili a B e l’ordine è garantito. Non significa necessariamente che A e B siano eseguite una subito dopo l’altra nel tempo.
+
+<h3 style="color:#C00000"><strong>T25. COME FACCIO A STABILIRE UNA RELAZIONE HAPPENS-BEFORE?</strong></h3>
+
+Esempi importanti:
+
+- Le azioni del thread chiamante prima di `t.start()` happens-before le azioni eseguite dal nuovo thread.
+- Le azioni di un thread prima della sua terminazione happens-before il ritorno da un `join()` riuscito su quel thread.
+- Il rilascio di un monitor happens-before una successiva acquisizione dello stesso monitor.
+- Una scrittura `volatile` happens-before una lettura successiva della stessa variabile `volatile`.
+
+Anche le API concorrenti, come executor, future e collezioni concorrenti, forniscono garanzie specifiche.
+
+<h3 style="color:#C00000"><strong>T26. CHE COSA SIGNIFICA CHE UNA VARIABILE IN MEMORIA È DICHIARATA <code>volatile</code>?</strong></h3>
+
+`volatile` dice alla JVM che letture e scritture di quella variabile sono condivise tra thread: una lettura successiva può osservare la scrittura più recente secondo il modello di memoria, e si stabilisce anche l’ordinamento previsto dalla regola `volatile`. Non fa partire thread e non rende atomiche operazioni composte come x++.
+
+<h3 style="color:#C00000"><strong>T27. PERCHÉ È NECESSARIA LA SINCRONIZZAZIONE?</strong></h3>
+
+Quando più thread condividono dati modificabili, la sincronizzazione serve a coordinare gli accessi. Può impedire che operazioni si sovrappongano nella sezione critica e può stabilire visibilità e ordine tra le modifiche. Senza una regola condivisa, il programma può avere risultati errati o non prevedibili.
+
+<h3 style="color:#C00000"><strong>T28. PERCHÉ È NECESSARIA UNA SINCRONIZZAZIONE EFFICIENTE?</strong></h3>
+
+La sincronizzazione corretta può comunque far aspettare i thread. Se si blocca troppo codice o si usa un unico lock per dati indipendenti, si riduce il lavoro parallelo. Una sincronizzazione efficiente protegge ciò che serve per il tempo necessario, mantenendo la correttezza senza creare attese superflue.
+
+<h3 style="color:#C00000"><strong>T29. CHE COSA SONO I METODI SINCRONIZZATI?</strong></h3>
+
+Sono metodi dichiarati con `synchronized`. Un metodo `synchronized` di istanza acquisisce il monitor dell’oggetto corrente (this) per tutta la chiamata; un altro thread che richiede lo stesso monitor aspetta. Il monitor viene rilasciato all’uscita dal metodo, anche se termina con un’eccezione.
+
+<h3 style="color:#C00000"><strong>T30. CHE COSA SONO I METODI STATICI SINCRONIZZATI?</strong></h3>
+
+Sono metodi dichiarati static `synchronized`. Acquisiscono il monitor dell’oggetto Class della classe, per esempio NomeClasse.class, non il monitor di una singola istanza. I metodi statici `synchronized` della stessa classe usano quel monitor.
+
+<h3 style="color:#C00000"><strong>T31. CHE RELAZIONE DI ACCESSO ESCLUSIVO HANNO UN METODO <code>synchronized</code> DI ISTANZA E UN METODO STATIC <code>synchronized</code>?</strong></h3>
+
+Usano monitor diversi: il metodo di istanza usa this, mentre quello statico usa NomeClasse.class. Perciò, di per sé, non si bloccano a vicenda. Possono essere eseguiti contemporaneamente, salvo che il loro codice acquisisca anche un altro lock condiviso.
+
+<h3 style="color:#C00000"><strong>T32. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA UN ALTRO THREAD CHE ESEGUE UN METODO <code>synchronized</code> DI ISTANZA?</strong></h3>
+
+Sì, se entrambi i metodi sono chiamati sulla stessa istanza: richiedono lo stesso monitor. Se sono chiamati su due oggetti diversi, i monitor sono diversi e non si bloccano per questo motivo.
+
+<h3 style="color:#C00000"><strong>T33. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA UN ALTRO THREAD CHE ESEGUE UN METODO STATIC <code>synchronized</code>?</strong></h3>
+
+No, non per il solo fatto di essere `synchronized`: il primo usa il monitor dell’istanza, il secondo quello della classe. Potrebbero bloccarsi solo se il codice acquisisce anche un monitor comune.
+
+<h3 style="color:#C00000"><strong>T34. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA UN ALTRO THREAD CHE ESEGUE UN METODO STATICO NON <code>synchronized</code>?</strong></h3>
+
+No. Il metodo statico non acquisisce automaticamente il monitor dell’istanza né quello della classe.
+
+<h3 style="color:#C00000"><strong>T35. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA UN ALTRO THREAD CHE ESEGUE UN METODO DI ISTANZA NON <code>synchronized</code>?</strong></h3>
+
+No. Un metodo non `synchronized` non acquisisce automaticamente il monitor dell’oggetto. Può quindi essere eseguito mentre un altro thread è dentro un metodo `synchronized` della stessa istanza, salvo sincronizzazione esplicita nel suo codice.
+
+<h3 style="color:#C00000"><strong>T36. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA TUTTI I THREAD IN ESECUZIONE SULLA JVM?</strong></h3>
+
+No. Blocca soltanto i thread che cercano di acquisire lo stesso monitor. Gli altri thread possono eseguire codice che non richiede quel monitor.
+
+<h3 style="color:#C00000"><strong>T37. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA TUTTI I THREAD IN ESECUZIONE SU TUTTE LE JVM DELLA MACCHINA?</strong></h3>
+
+No. I monitor Java sono locali alla singola JVM e al relativo oggetto. Non coordinano automaticamente processi JVM distinti.
+
+<h3 style="color:#C00000"><strong>T38. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA TUTTI I THREAD DI TUTTE LE JVM SU TUTTI I COMPUTER?</strong></h3>
+
+No. Un lock Java non è un lock distribuito: non coordina computer diversi né JVM diverse. Per coordinare processi remoti serve un meccanismo apposito, per esempio un servizio o lock distribuito.
+
+<h3 style="color:#C00000"><strong>T39. UN METODO <code>synchronized</code> DI ISTANZA BLOCCA TUTTI I THREAD DI TUTTE LE JVM DEI COMPUTER DELL’UNIVERSITÀ?</strong></h3>
+
+No. Vale solo per i thread che tentano di acquisire lo stesso monitor nella stessa JVM. Il numero o la posizione degli altri computer non cambia questa regola.
+
+<h3 style="color:#C00000"><strong>T40. È POSSIBILE CON I LOCK IMPLICITI SIMULARE I METODI <code>synchronized</code> DI ISTANZA?</strong></h3>
+
+Sì. Un metodo `synchronized` di istanza equivale, come lock, a mettere il suo corpo dentro `synchronized (this)` { ... }. Entrambe le forme acquisiscono il monitor dell’istanza corrente.
+
+<h3 style="color:#C00000"><strong>T41. È POSSIBILE CON I LOCK IMPLICITI SIMULARE I METODI STATIC <code>synchronized</code>?</strong></h3>
+
+Sì. Il corpo di un metodo static `synchronized` può essere scritto dentro `synchronized (NomeClasse.class)` { ... }. Entrambe le forme usano il monitor dell’oggetto Class.
+
+<h3 style="color:#C00000"><strong>T42. È POSSIBILE CON I METODI <code>synchronized</code> DI ISTANZA SIMULARE I LOCK?</strong></h3>
+
+Solo per il monitor this dell’oggetto. Un metodo `synchronized` di istanza acquisisce sempre il lock dell’istanza corrente; non permette di scegliere un oggetto lock arbitrario. Per lock distinti si usano blocchi `synchronized` su oggetti dedicati o classi di lock esplicite.
+
+<h3 style="color:#C00000"><strong>T43. È POSSIBILE CON I METODI STATIC <code>synchronized</code> SIMULARE I LOCK?</strong></h3>
+
+Solo per il monitor della classe. Un metodo static `synchronized` acquisisce il lock NomeClasse.class. Non può rappresentare direttamente un lock arbitrario o più lock diversi; per quelli servono blocchi `synchronized` o altre classi di lock.
+
+<h3 style="color:#C00000"><strong>T44. CHE COS’È UNA VARIABILE <code>volatile</code>?</strong></h3>
+
+È una variabile condivisa dichiarata con la parola chiave `volatile`. Le scritture diventano visibili alle letture successive della stessa variabile secondo il modello di memoria Java. È adatta a semplici segnali, come pronto o fermati, quando la logica è progettata correttamente. Non garantisce mutua esclusione.
+
+<h3 style="color:#C00000"><strong>T45. È POSSIBILE USARE <code>volatile</code> PER ELIMINARE L’INTERFERENZA TRA THREAD O UNA RACE CONDITION?</strong></h3>
+
+Non in generale. `volatile` può essere sufficiente per comunicare un singolo valore o un segnale, ma non rende indivisibile una sequenza di operazioni. Per esempio, `volatile` int contatore non rende sicuro contatore++: due thread possono ancora perdere un incremento.
+
+<h3 style="color:#C00000"><strong>T46. È POSSIBILE USARE <code>volatile</code> PER ELIMINARE I PROBLEMI DI INCONSISTENZA DELLA MEMORIA?</strong></h3>
+
+Può risolvere problemi di visibilità relativi alla variabile `volatile` e, con il corretto protocollo, rendere visibili anche scritture precedenti associate al segnale. Non risolve automaticamente ogni problema di memoria o di sincronizzazione del programma.
+
+<h3 style="color:#C00000"><strong>T47. LE OPERAZIONI ATOMICHE SONO ESTREMAMENTE PIÙ EFFICIENTI DELLE OPERAZIONI NON ATOMICHE: VERO O FALSO? PERCHÉ?</strong></h3>
+
+Falso come regola generale. Atomicità e prestazioni sono aspetti diversi. Un’operazione atomica può essere molto efficiente, ma sotto contesa può costare o riprovare; un lock può essere ottimizzato dalla JVM, oppure diventare costoso se molti thread lo contendono. Si sceglie prima lo strumento corretto e poi si misura la prestazione.
+
+<h3 style="color:#C00000"><strong>T48. SE LA VARIABILE INT A È <code>volatile</code>, L’OPERAZIONE A++ VIENE ESEGUITA IN MUTUA ESCLUSIONE DA DUE THREAD: VERO O FALSO? PERCHÉ?</strong></h3>
+
+Falso. a++ equivale a leggere a, calcolare a + 1 e scrivere il risultato. `volatile` rende visibili letture e scritture, ma non protegge l’intera sequenza. Per un incremento concorrente usare `AtomicInteger.incrementAndGet()` o proteggere l’operazione con `synchronized`.
+
+<h3 style="color:#C00000"><strong>T49. CHE COSA SONO DEADLOCK, LIVELOCK E STARVATION?</strong></h3>
+
+Deadlock: thread bloccati in attesa reciproca di lock, senza possibilità di proseguire.
+Livelock: thread attivi che reagiscono l’uno all’altro ma continuano a non completare il lavoro.
+Starvation: un thread resta a lungo senza ottenere la CPU o una risorsa necessaria perché altri la ottengono continuamente.
+
+<h3 style="color:#C00000"><strong>T50. QUAL È LA DIFFERENZA TRA DEADLOCK E LIVELOCK?</strong></h3>
+
+Nel deadlock i thread sono fermi e aspettano risorse possedute reciprocamente. Nel livelock continuano a eseguire azioni e a cambiare stato, ma le loro reazioni reciproche impediscono comunque di fare progressi utili.
+
+<h3 style="color:#C00000"><strong>T51. NELL’ESEMPIO SIMPLETHREAD E EXAMPLE, COME SI STUDIA IL COMPORTAMENTO CON METODI DI ISTANZA O STATICI, <code>synchronized</code> O NON <code>synchronized</code>, CHIAMATI DA UNO O DUE THREAD?</strong></h3>
+
+Per stabilire cosa può accadere, identifica prima il lock acquisito da ciascuna chiamata:
+
+- Metodo `synchronized` di istanza: lock sull’oggetto chiamato. Due chiamate `synchronized` sulla stessa istanza si escludono; su istanze diverse possono procedere insieme.
+- Metodo static `synchronized`: lock sulla classe. Metodi static `synchronized` della stessa classe si escludono tra loro.
+- Metodo non `synchronized`: non prende automaticamente nessuno di questi lock e può interlevarsi con gli altri.
+- Metodo di istanza e metodo static `synchronized`: lock diversi, quindi non si bloccano automaticamente.
+
+Se i due thread chiamano metodi diversi, conta il lock, non il nome del metodo: due metodi `synchronized` sulla stessa istanza condividono il lock this. Per determinare l’output preciso dell’esempio servono il codice e i dati stampati; senza quelli si possono dare queste regole generali.
+
+<h3 style="color:#C00000"><strong>T52. A COSA SERVE IL DESIGN PATTERN <code>Singleton</code>?</strong></h3>
+
+Serve a fare in modo che una classe fornisca una sola istanza condivisa, raggiungibile tramite un punto di accesso, spesso `getInstance()`. Può essere utile per una configurazione comune o un servizio condiviso. Non va applicato a oggetti che devono esistere in più copie, come gli studenti di un corso.
+
+<h3 style="color:#C00000"><strong>T53. CHE COS’È LA LAZY ALLOCATION?</strong></h3>
+
+È la creazione dell’oggetto solo quando serve, tipicamente alla prima richiesta. Nel `Singleton` lazy, l’istanza non viene costruita all’avvio del programma ma alla prima chiamata a `getInstance()`.
+
+<h3 style="color:#C00000"><strong>T54. LA SOLUZIONE <code>Singleton</code> CON IL METODO <code>getInstance()</code> <code>synchronized</code> È CORRETTA? SE SÌ, PERCHÉ STUDIAMO ALTRE SOLUZIONI?</strong></h3>
+
+Sì, è corretta per evitare che due thread creino istanze diverse: un thread alla volta entra nel metodo e il successivo trova l’istanza già creata. Si studiano altre soluzioni per evitare di acquisire il lock a ogni chiamata successiva o per ottenere lazy initialization con una forma più semplice, come il Lazy Holder.
+
+<h3 style="color:#C00000"><strong>T55. PERCHÉ LA SOLUZIONE <code>Singleton</code> CON UN BLOCCO <code>synchronized</code> SUBITO DOPO L’IF NON FUNZIONA?</strong></h3>
+
+Se il codice fa un controllo esterno `instance == null` e poi entra nel blocco `synchronized` senza ricontrollare instance al suo interno, due thread possono superare entrambi il primo controllo. Il primo crea l’istanza; il secondo, quando ottiene il lock, ne crea un’altra. Serve un secondo controllo dentro il lock. Anche con quel controllo, per il double-checked locking moderno il campo deve essere `volatile`.
+
+<h3 style="color:#C00000"><strong>T56. CHE COS’È IL DOUBLE-CHECKED LOCKING? PERCHÉ NON È CORRETTO? COME SI PUÒ MODIFICARE PER RENDERLO CORRETTO?</strong></h3>
+
+È una tecnica che controlla instance due volte: prima senza lock, poi di nuovo dentro `synchronized`. Il controllo interno impedisce una seconda creazione mentre un thread aspettava. La versione senza `volatile`, però, non garantisce una pubblicazione sicura dell’oggetto secondo il modello di memoria Java.
+In Java 5 e successivi si dichiara il campo `private static volatile Singleton instance` e si mantiene il secondo controllo dentro `synchronized (Singleton.class)`. Un’alternativa più semplice è il pattern Lazy Holder, la cui inizializzazione è garantita dalla JVM.
+
+<h2 style="color:#C00000"><strong>LAMBDA, FINAL E COUNTDOWNLATCH: CONCETTI USATI NEGLI ESERCIZI</strong></h2>
+
+Una lambda che implementa `Runnable` fornisce il corpo di `run()` e cattura variabili locali `final` o *effectively final*. Un riferimento finale a un array non rende immutabili gli elementi dell’array. Scritture su celle disgiunte possono essere raccolte dopo `join()`; un accumulatore unico condiviso richiede invece coordinamento.
+
+`CountDownLatch(n)` permette di attendere n eventi: `countDown()` decrementa e `await()` aspetta zero. Negli esempi di deadlock la latch serve a far sì che tutti abbiano già preso il primo monitor. **await() non rilascia i monitor synchronized già posseduti**: quando la latch si apre, ciascuno può chiedere il secondo monitor ancora posseduto dall’altro. La latch è a uso singolo, non una barriera ciclica automaticamente riutilizzabile.
+
+Le applicazioni complete e le spiegazioni su speedup e Monte Carlo sono negli [esercizi Thread](../tutti%20appunti%20pratici/ESERCIZI%20THREAD.md).

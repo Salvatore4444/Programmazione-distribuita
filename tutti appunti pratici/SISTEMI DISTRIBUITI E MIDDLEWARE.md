@@ -19,7 +19,7 @@ Non assumere che “distribuito” significhi automaticamente scalabile, sicuro 
 
 Negli esercizi teorici, collega ogni motivazione a un effetto concreto:
 
-- economica: integrare sistemi esistenti, ridurre costi di infrastruttura (downsizing) e accelerare il rilascio (time-to-market);
+- economica: integrare sistemi esistenti, mantenere la federazione dopo la separazione di unità dalla casa madre (downsizing negli appunti) e accelerare il rilascio (time-to-market);
 - tecnologica: riusare componenti, aggiungere capacità e integrare piattaforme eterogenee;
 - rete di utenti: distingui crescita lineare (Sarnoff), a coppie/quadratica (Metcalfe) e per gruppi/esponenziale (Reed).
 
@@ -94,3 +94,13 @@ Quando un esercizio cita CORBA, .NET Remoting o WCF, riconosci il ruolo storico 
 | Reed | `2^N` | gruppi/sottoreti |
 
 Per due reti con `n` e `m` utenti attivi, la formula annotata per Reed è `2^n · 2^m − (2^n + 2^m)`. Conservala come formula degli appunti; il conteggio esatto dei gruppi con almeno un membro per rete include un `+1`: `(2^n−1)(2^m−1)`. Distingui anche l’aumento `2nm` del modello di Metcalfe `N²` dalle `nm` nuove coppie non orientate. Spiega che si tratta di modelli del valore potenziale; non presentarla come legge universale del valore economico.
+
+<h2 style="color:#C00000"><strong>CHECKLIST RICAVATA DALLE ANNOTAZIONI SUI GUASTI</strong></h2>
+
+1. Distingui guasto rilevato da operazione sicuramente non eseguita: un timeout può lasciare l’esito incerto.
+2. Prima di un retry stabilisci se l’operazione è idempotente o se la richiesta ha un identificativo deduplicabile.
+3. Per modifiche multiple individua inizio transazione, commit, rollback e recupero.
+4. Verifica che replica e transazione coprano entrambi i casi: componente non disponibile e dati da mantenere coerenti.
+5. Esempio: una lettura di saldo può essere ripetuta; un addebito di 10 € richiede protezione contro una seconda applicazione.
+
+Per leggere il diagramma delle trasparenze parti da accesso/locazione, risali a migrazione/replica/persistenza/transazioni e poi agli obiettivi superiori. Negli esercizi CORBA individua prima IDL e oggetto, poi stub/skeleton, ORB e protocollo IIOP.

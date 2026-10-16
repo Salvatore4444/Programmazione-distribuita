@@ -82,6 +82,6 @@ Questi controlli confermano gli esempi verificati e la copertura testuale confro
 
 ## Materiale non verificabile da questi soli testi
 
-Nel testo Thread compare il richiamo Obsidian `Pasted image 20261013095249.png`, ma l’immagine non è inclusa tra gli allegati disponibili. Il contenuto visuale di quel richiamo non può essere confrontato o ricostruito; le spiegazioni testuali su `volatile` sono invece state confrontate e ripristinate.
+**Limite risolto con il successivo ZIP Obsidian:** al momento di questa prima verifica mancava `Pasted image 20261013095249.png`. L’originale è ora disponibile, confrontato e incluso come [volatile-flag.png](tutti%20appunti/immagini/volatile-flag.png). Il [nuovo resoconto](VERIFICA%20OBSIDIAN%20PD.md) copre anche domande, esercizi, termini e annotazioni del vault.
 
-Le formulazioni storiche di Gilder/“Shugard” e il richiamo OSI/APPLICATION sono conservati come riportati nei testi: per attribuirli esattamente al docente servirebbe la fonte originale corrispondente. Questa verifica confronta **tutto il materiale ricevuto**, non certifica che sia presente ogni argomento del programma d’esame non inviato.
+Le formulazioni storiche di Gilder/“Shugard” e il richiamo OSI/APPLICATION sono conservati come riportati nei testi: per attribuirli esattamente al docente servirebbe la fonte originale corrispondente. Questa prima verifica confronta **i testi ricevuti fino a quel momento**; il successivo ZIP è trattato nel nuovo resoconto. Non certifica che sia presente ogni argomento del programma d’esame non inviato.

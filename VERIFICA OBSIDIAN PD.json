@@ -1,0 +1,386 @@
+{
+  "archivio": "Appunti in bella INGEGNERIA.zip",
+  "data": "2026-10-16",
+  "baseline_github": "2cdd3dc02ba922dc0150fc7646aa19d1c2edb444",
+  "perimetro": "Solo Programmazione distribuita e allegati collegati",
+  "fonti": [
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/0 COMANDI.md",
+      "byte": 1978,
+      "sha256": "c35a755d8ecc5011e631d01343f89bb2dbd931c7e8be74beaf67e20cdb50a457",
+      "destinazioni": [
+        "tutti appunti/THREAD.md",
+        "tutti appunti pratici/THREAD.md",
+        "tutti appunti/JAVA RMI.md",
+        "tutti appunti pratici/JAVA RMI.md",
+        "tutti appunti pratici/ESERCIZI THREAD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/0 FOTO COMANDI.md",
+      "byte": 50,
+      "sha256": "e201b176275de6e5c884014f2819d686694ec1700c39b22f3273b30aba554611",
+      "destinazioni": [
+        "tutti appunti/THREAD.md",
+        "tutti appunti pratici/THREAD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/0 FUNZIONAMENTO INTERNO.md",
+      "byte": 261,
+      "sha256": "b27eb54a9ae03390c6b838a8a73aa0ed0e42909e9beb6f96ec4ef26d025c5b0d",
+      "destinazioni": [
+        "tutti appunti/THREAD.md",
+        "tutti appunti pratici/THREAD.md",
+        "tutti appunti/GLOSSARIO PD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/0 GLOSSARIO.md",
+      "byte": 1339,
+      "sha256": "9e1344cec3e5d723bb461dae416c2986023b3c34d9d84e6fc113ba6b31db5ffd",
+      "destinazioni": [
+        "tutti appunti/GLOSSARIO PD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/0 leggi matematica.md",
+      "byte": 386,
+      "sha256": "a981ebbeef540af0d0c4459fbe45f13742094ca952336894044ed64c721f3762",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md",
+        "tutti appunti pratici/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/1 PROLOGO AI SISTEMI DISTRIBUITI.md",
+      "byte": 1226,
+      "sha256": "d8841fd60aa6a38f27f0a9e1e357ca2295cb18718a8fe57c116dbead1b7621f7",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md",
+        "tutti appunti pratici/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/2 OPEN DISTRIBUTED.md",
+      "byte": 16930,
+      "sha256": "33cc6976ddc34219c8584d5bbb480199e1185b6cb5cc788f6ac52a19914e71a2",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md",
+        "tutti appunti pratici/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/2.1 SLIDE MIDDLEWARE IMPLICITO.md",
+      "byte": 8572,
+      "sha256": "fe432d990a34672d8c13ea1921ffdf57b55da867c2ae2765738c4ea4a6ac94c6",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md",
+        "tutti appunti pratici/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/3 THREAD.md",
+      "byte": 26967,
+      "sha256": "171925b399c364fafd57134c7b20b18826640a3b60116046518c5155b50b6669",
+      "destinazioni": [
+        "tutti appunti/THREAD.md",
+        "tutti appunti pratici/THREAD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/4 SOCKET.md",
+      "byte": 8788,
+      "sha256": "46f894f2d3969533bb22ace3c780a3cc161e331b05ce8b86ddfdfa78512757d8",
+      "destinazioni": [
+        "tutti appunti/SOCKET.md",
+        "tutti appunti pratici/SOCKET.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/4.1.md",
+      "byte": 4180,
+      "sha256": "46b87e5721c02280105b4ee2d8c549fb264f5c720d69bc6c6c10a0c8b32359ac",
+      "destinazioni": [
+        "tutti appunti pratici/SOCKET.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/4.2 JAVA RMI.md",
+      "byte": 24994,
+      "sha256": "b3f43ef04d2b4e8848e1374f4001fea107e7b28ef5b1d25e17433e63b0b35fba",
+      "destinazioni": [
+        "tutti appunti/JAVA RMI.md",
+        "tutti appunti pratici/JAVA RMI.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/2 DOMANDE/1 PROLOGO.md",
+      "byte": 7544,
+      "sha256": "af9a59d70d8f36ae271df09ba2c04bca7411c666201443607c47e2fd82f2e417",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/2 DOMANDE/2 OPEN.md",
+      "byte": 20682,
+      "sha256": "07188d6b51cc1d8977402644efb6067c6eee95453e194e6fcb2df0e8416fc2e0",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/2 DOMANDE/3 THREAD.md",
+      "byte": 23090,
+      "sha256": "cb6629bb112c1d4c5225a44aca691f121dba01adb87509a5b531d87277be614d",
+      "destinazioni": [
+        "tutti appunti/THREAD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/2 DOMANDE/4 SOCKET.md",
+      "byte": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destinazioni": [],
+      "esito": "File sorgente vuoto: nessuna domanda Socket da recuperare"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/3 ESERCIZI/1 COSA IMPARARE DAI THREDA.md",
+      "byte": 2574,
+      "sha256": "2366ed458c0b4d4e0e6333b0ada65400e3173d9def27567663fd6bb08188d2dd",
+      "destinazioni": [
+        "tutti appunti pratici/ESERCIZI THREAD.md",
+        "tutti appunti/THREAD.md",
+        "tutti appunti pratici/THREAD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/3 ESERCIZI/1 THREAD.md",
+      "byte": 27425,
+      "sha256": "21cc86660cd2bbed6013261d48a4de797134571d5b6d14578480bdc58c803708",
+      "destinazioni": [
+        "tutti appunti pratici/ESERCIZI THREAD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/3 ESERCIZI/2 SOCKET.md",
+      "byte": 313,
+      "sha256": "b694a417a11882309a0aad61f49ad7cf1ebd425b7c3483abfae42713efa1e446",
+      "destinazioni": [
+        "tutti appunti pratici/SOCKET.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/Z TERMINI PD/header.md",
+      "byte": 1130,
+      "sha256": "04623ac203ba2ab4419d0934a91fe6b399acfe0f27820db759293c7972cf298f",
+      "destinazioni": [
+        "tutti appunti/GLOSSARIO PD.md",
+        "tutti appunti/SOCKET.md",
+        "tutti appunti pratici/SOCKET.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/Z TERMINI PD/skeleton.md",
+      "byte": 1849,
+      "sha256": "399f97c8cf83ed5eb39ad6f1fdb0912dba3e4401da69ac037a790a5c732375b5",
+      "destinazioni": [
+        "tutti appunti/GLOSSARIO PD.md",
+        "tutti appunti/SOCKET.md",
+        "tutti appunti pratici/SOCKET.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/Z TERMINI PD/stub.md",
+      "byte": 220,
+      "sha256": "2bad73c3ce66213d52a3fcf6d16b4f20f480bfe93ab6a0808792de27b082bdd3",
+      "destinazioni": [
+        "tutti appunti/GLOSSARIO PD.md",
+        "tutti appunti/SOCKET.md",
+        "tutti appunti pratici/SOCKET.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/spazio di indirizzamento.md",
+      "byte": 820,
+      "sha256": "65930ccc1031bfdeaf7e39f32b0b0f2942de029b8c8bf295aa35257f807ee4a7",
+      "destinazioni": [
+        "tutti appunti/GLOSSARIO PD.md",
+        "tutti appunti/JAVA RMI.md",
+        "tutti appunti pratici/JAVA RMI.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261011135136.png",
+      "byte": 79821,
+      "sha256": "23aa7c6b57b0701adf343c782037cc4f3363225875468652927fd73f627ef882",
+      "destinazioni": [
+        "tutti appunti/immagini/trasparenze-dipendenze.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261012214539.png",
+      "byte": 39772,
+      "sha256": "4c031a7ffb3d245c4546cc696edc7aa1a777f4b0a47005644041d4602f0e6449",
+      "destinazioni": [
+        "tutti appunti/immagini/thread-incrementi-core.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261012221126.png",
+      "byte": 29411,
+      "sha256": "42e915a18603be980bdcdf66e1242c4251eb1c13dc2d75a1e0feb55e9ae6c012",
+      "destinazioni": [
+        "tutti appunti/immagini/thread-vs-runnable.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261012221520.png",
+      "byte": 47969,
+      "sha256": "06631614d6a494ee457d2bc234174328bf7d2a8fdc81a946d620448b438a4d75",
+      "destinazioni": [
+        "tutti appunti/immagini/runnable-esempio.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261013095249.png",
+      "byte": 24741,
+      "sha256": "2c7fdf42a0be485c88f6c0cd4f8bdae0b15373e5b769ae2388f47b0b976921e8",
+      "destinazioni": [
+        "tutti appunti/immagini/volatile-flag.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261013095339.png",
+      "byte": 48957,
+      "sha256": "7726f457d761a678940a44f3db893c383cbcafec64160c44d12390c955f71bb9",
+      "destinazioni": [
+        "tutti appunti/immagini/atomicita-incremento.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261013105642.png",
+      "byte": 1944641,
+      "sha256": "a164c4942f1ba8abdba2dfc6bfa4a8bca062edf25f580009a45fb122269be6dd",
+      "destinazioni": [
+        "tutti appunti/immagini/this-escape.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261014142924.png",
+      "byte": 76012,
+      "sha256": "417601fcc35295869390af79de2d35fbc69e85b89e704b0af9e97bf27c83643a",
+      "destinazioni": [
+        "tutti appunti/immagini/lambda-cattura-variabili.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/IMMAGINI/Pasted image 20261014145134.png",
+      "byte": 39707,
+      "sha256": "cf37c161de3c75bcca3868dfc6d0e9463e1a19bb39c7b6194c280440f154cc33",
+      "destinazioni": [
+        "tutti appunti/immagini/ripartizione-17-punti.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/Pasted image 20261016101453.png",
+      "byte": 64030,
+      "sha256": "e3bd388fd317f13b74b6d86312bc69d099e1a4bdd411570a6bafd1c83400f175",
+      "destinazioni": [
+        "tutti appunti/immagini/socket-server-oggetti.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/Pasted image 20261016101507.png",
+      "byte": 46066,
+      "sha256": "5d598d57056bebef085ab76a6d1573ff15f99e6f6a28bffaff22801e75639de7",
+      "destinazioni": [
+        "tutti appunti/immagini/socket-client-oggetti.png"
+      ],
+      "esito": "Originale conservato byte per byte e collegato dagli appunti"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/1 PROLOGO AI SISTEMI DISTRIBUITI.md.review.yaml",
+      "byte": 4474,
+      "sha256": "26b8dcf686b0e35c27ad6de0e9a005968d0029ad906a4ba0711b0b3a86ec0bb0",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md",
+        "tutti appunti pratici/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/2 OPEN DISTRIBUTED.md.review.yaml",
+      "byte": 17008,
+      "sha256": "e4e9b27e380e0c6058b088e4cb1172dcdd0d1e0a12ca4d1c39c930a27c47ee06",
+      "destinazioni": [
+        "tutti appunti/SISTEMI DISTRIBUITI E MIDDLEWARE.md",
+        "tutti appunti pratici/SISTEMI DISTRIBUITI E MIDDLEWARE.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/3 THREAD.md.review.yaml",
+      "byte": 1474,
+      "sha256": "ad1c82b5b741b0f4d1272a3bedda983bdeee0ef0ab3c7493b4b36514313c3ca2",
+      "destinazioni": [
+        "tutti appunti/THREAD.md",
+        "tutti appunti pratici/THREAD.md",
+        "tutti appunti/GLOSSARIO PD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/1 LEZIONI/4.2 JAVA RMI.md.review.yaml",
+      "byte": 1585,
+      "sha256": "e0543a8027a1b468223098a69a02b4d398ff7f46749c0ca525607f640ec8e72b",
+      "destinazioni": [
+        "tutti appunti/JAVA RMI.md",
+        "tutti appunti pratici/JAVA RMI.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    },
+    {
+      "fonte_nello_zip": "Appunti in bella INGEGNERIA/2 APPUNTI IN BELLA PD/3 ESERCIZI/1 THREAD.md.review.yaml",
+      "byte": 1710,
+      "sha256": "9e563571b43fe6aeb58a4b8ee060610b98f34b6c8141ba7e3a8c2f195947cf5f",
+      "destinazioni": [
+        "tutti appunti pratici/ESERCIZI THREAD.md"
+      ],
+      "esito": "Contenuto didattico confrontato e integrato; ripetizioni e metadati esclusi"
+    }
+  ]
+}

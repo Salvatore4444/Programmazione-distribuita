@@ -8,3 +8,5 @@ Gli appunti pratici sono raccolti in **tutti appunti pratici**, con un file per 
 - [Sistemi distribuiti e middleware](tutti%20appunti%20pratici/SISTEMI%20DISTRIBUITI%20E%20MIDDLEWARE.md)
 
 Le preferenze di studio e organizzazione sono in [SKILL PD](SKILL%20PD.md).
+
+- [Thread — tutti gli esercizi originali, con varianti e correzioni](tutti%20appunti%20pratici/ESERCIZI%20THREAD.md)

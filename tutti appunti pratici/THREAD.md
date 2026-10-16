@@ -129,3 +129,7 @@ Nel codice reale, il `catch` può terminare il ciclo o propagare l’interruzion
 - `wait()` rilascia il monitor e lo riacquisisce prima del ritorno; `sleep()` non lo rilascia.
 - Dopo `notify()`/`notifyAll()`, il thread risvegliato deve ancora riacquisire il monitor.
 - Usa `while (condizioneNonSoddisfatta) wait()` per attendere una condizione.
+
+<h2 style="color:#C00000"><strong>RACCOLTA COMPLETA DEGLI ESERCIZI</strong></h2>
+
+Vedi [ESERCIZI THREAD](ESERCIZI%20THREAD.md): contatori, riempimento e somma di array, stampa coordinata, Monte Carlo, deadlock a due e tre thread, lambda e CountDownLatch. Sono mantenuti tutti i programmi e i passaggi presenti nel vault, con le correzioni evidenziate.
