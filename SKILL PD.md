@@ -17,8 +17,7 @@ Usare queste preferenze in tutte le chat di programmazione distribuita che condi
 
 ## Appunti e buone pratiche
 
-- Organizzare tutti gli appunti completi nella cartella `tutti appunti`, con un file per macroargomento.
-- Organizzare gli appunti pratici nella cartella `tutti appunti pratici`, con un file per macroargomento.
+- Per ogni argomento, separare chiaramente teoria e pratica: organizzare la teoria completa nella cartella `tutti appunti` e le sole indicazioni operative nella cartella `tutti appunti pratici`, ciascuna con un file per macroargomento.
 - Organizzare gli appunti completi in cartelle per macroargomento, ad esempio `tutti appunti/JAVA RMI.md`.
 - Tenere separati gli appunti pratici: includere solo regole operative, checklist ed esempi utili negli esercizi.
 - Quando l’utente chiede una regola pratica o una preferenza di studio, aggiungerla al presente documento o alla sezione pratica adatta se non è già presente.
