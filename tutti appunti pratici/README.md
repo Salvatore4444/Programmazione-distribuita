@@ -4,3 +4,4 @@ Gli appunti pratici sono suddivisi per macroargomento e contengono checklist, pr
 
 - [Java RMI](</workspace/Programmazione-distribuita/tutti%20appunti%20pratici/JAVA%20RMI.md>)
 - [Socket](</workspace/Programmazione-distribuita/tutti%20appunti%20pratici/SOCKET.md>)
+- [Thread](</workspace/Programmazione-distribuita/tutti%20appunti%20pratici/THREAD.md>)
