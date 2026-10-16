@@ -70,13 +70,6 @@ Promemoria da compilare quando affrontiamo le slide e gli esercizi sui thread.
 - Per condividere un servizio/oggetto remoto, passare il suo riferimento remoto tramite l’interfaccia remota. RMI mantiene l’identità remota attraverso lo stub, non trasferendo l’implementazione server.
 - Progettare le chiamate tenendo conto che trasmissione e ricostruzione dei dati possono fallire; gestire le eccezioni remote.
 
-# Metodo di studio delle slide
-
-- Alla fine di ogni spiegazione indicare chiaramente la slide raggiunta e il totale, per esempio: «Mi fermo alla slide 3 di 9; ne restano 6».
-- Fermarsi alla fine della slide spiegata e attendere che l’utente dica di procedere prima di passare alla successiva.
-- Ogni volta che l’utente chiede di aggiungere una regola o un promemoria pratico, inserirlo in questo file nella sezione tematica corretta, se non è già presente. Questa regola vale per tutte le chat di programmazione distribuita che usano questo spazio condiviso.
-- Organizzare le spiegazioni per argomento, non fermandosi automaticamente alla fine di una slide: se l’argomento continua nella slide successiva, proseguire fino a completarlo. Alla fine indicare comunque l’ultima slide coperta, il totale e quante ne restano, poi attendere il via dell’utente.
-
 ## Architettura RMI a livelli
 
 - Ragionare sul percorso completo di una chiamata: client → stub → livello di riferimento remoto → livello di trasporto → server/skeleton → implementazione; la risposta ripercorre il percorso in senso inverso.
