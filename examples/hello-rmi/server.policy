@@ -1,0 +1,5 @@
+// JDK 21, esempio locale: registry 1099 e servizio 1100.
+grant {
+    permission java.net.SocketPermission "localhost:1099-1100", "listen";
+    permission java.net.SocketPermission "127.0.0.1:1024-", "accept";
+};

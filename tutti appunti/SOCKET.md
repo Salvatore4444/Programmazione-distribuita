@@ -168,3 +168,45 @@ La serializzazione Java non definisce da sola il protocollo dell’applicazione:
 - Gli stream di base trasportano byte; wrapper aggiungono buffering, conversione testo o serializzazione di oggetti.
 - Con `ObjectInputStream` e `ObjectOutputStream`, considera l’header e l’ordine di costruzione; specifica un protocollo di lettura/scrittura coerente.
 - Un socket trasferisce dati; RPC, stub e skeleton sono livelli applicativi che definiscono come rappresentare una chiamata e il suo risultato.
+
+<h2 style="color:#C00000"><strong>DOMANDE NUMERATE — SOCKET E STREAM (1–8)</strong></h2>
+
+### 1. Come funzionano i socket TCP in Java?
+
+Il server crea un `ServerSocket` su una porta e chiama `accept()`, che attende una connessione. Il client crea un `Socket(host, porta)`; quando la connessione riesce, `accept()` restituisce al server un **nuovo** `Socket` dedicato a quel client. Entrambi usano input e output per scambiare byte in entrambe le direzioni e chiudono i socket a fine uso. TCP consegna un flusso ordinato, senza conservare i confini delle singole `write`: il protocollo applicativo deve delimitare i messaggi. La comunicazione può bloccarsi o fallire.
+
+### 2. Qual è la differenza tra `ServerSocket` e `Socket`?
+
+`ServerSocket` **ascolta** e accetta nuove connessioni; non è lo stream di dati di un client. `Socket` rappresenta una **connessione TCP già stabilita**: lo crea il client o lo restituisce `accept()` sul server. Un server mantiene il socket di ascolto e può avere molti socket connessi, uno per ogni client.
+
+### 3. Cosa sono e a cosa servono gli stream?
+
+Sono astrazioni per leggere o scrivere una sequenza di dati. `InputStream` legge byte da una sorgente; `OutputStream` scrive byte verso una destinazione. La sorgente o destinazione può essere un file, memoria o un socket. Gli stream non decidono da soli il formato dei messaggi.
+
+### 4. Cosa significa usare uno stream come wrapper di un altro stream?
+
+Si costruisce uno stream sopra un altro, aggiungendo una funzione senza cambiare la sorgente sottostante. Per esempio, `new BufferedInputStream(socket.getInputStream())` aggiunge buffering; `new ObjectInputStream(socket.getInputStream())` interpreta oggetti serializzati. Per testo, `InputStreamReader` converte byte in caratteri secondo un charset e `BufferedReader` aggiunge `readLine()`. Chiudere il wrapper normalmente chiude anche lo stream sottostante.
+
+### 5. Quali sono i metodi più importanti di `InputStream` e `OutputStream`?
+
+| Classe | Metodo | Effetto |
+|---|---|---|
+| `InputStream` | `read()` | Legge un byte (`0`–`255`), oppure `-1` a fine stream. |
+| `InputStream` | `read(byte[])`, `read(byte[], off, len)` | Legge **fino a** un certo numero di byte; può leggerne meno di quelli richiesti. |
+| `InputStream` | `skip(n)`, `available()` | Salta byte; indica quelli leggibili senza bloccare, **non** la lunghezza totale. |
+| `InputStream` | `close()` | Rilascia la risorsa. |
+| `OutputStream` | `write(int)`, `write(byte[])`, `write(byte[], off, len)` | Scrive uno o più byte. |
+| `OutputStream` | `flush()` | Spinge i dati eventualmente trattenuti dai buffer verso lo stream sottostante; non prova che il peer li abbia letti. |
+| `OutputStream` | `close()` | Chiude e rilascia la risorsa, dopo l'eventuale svuotamento dei buffer. |
+
+### 6. Perché normalmente non si usano direttamente `InputStream` e `OutputStream`?
+
+Sono classi astratte che forniscono operazioni di base sui byte. Nella pratica si ottengono implementazioni concrete, ad esempio da `Socket` o `Files`, e spesso si avvolgono in classi più comode: buffering, conversione di testo, valori primitivi o oggetti. Si possono comunque usare come **tipi** di variabile e chiamarne i metodi di base.
+
+### 7. Come si usano gli stream associati a un socket?
+
+Si chiamano `socket.getInputStream()` e `socket.getOutputStream()`. L'output di un lato arriva all'input dell'altro. Si concordano formato, ordine dei campi e terminazione dei messaggi; con i wrapper bufferizzati può servire `flush()`. Per esempio: `DataOutputStream out = new DataOutputStream(socket.getOutputStream()); out.writeUTF("ciao"); out.flush();` e sull'altro lato `new DataInputStream(socket.getInputStream()).readUTF()`. Usare `try` con risorse per chiudere il socket.
+
+### 8. Quali metodi leggono e scrivono oggetti con `ObjectInputStream` e `ObjectOutputStream`?
+
+`ObjectOutputStream.writeObject(obj)` serializza e scrive un oggetto; `ObjectInputStream.readObject()` lo ricostruisce e restituisce `Object`, quindi può servire un cast. `readObject()` può sollevare `IOException` o `ClassNotFoundException`; la classe e i suoi campi trasferiti devono essere serializzabili e disponibili al destinatario. `flush()` invia i dati bufferizzati. Quando entrambi i peer usano stream a oggetti, conviene creare e svuotare prima `ObjectOutputStream`, poi costruire `ObjectInputStream`, perché quest'ultimo attende l'header dello stream ricevuto.

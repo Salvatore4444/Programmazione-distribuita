@@ -2,6 +2,8 @@
 
 Solo promemoria operativi da applicare negli esercizi.
 
+Le risposte e i sorgenti degli esercizi **49–51** sono in [HelloWorld RMI](ESERCIZI%20HELLOWORLD%20RMI.md).
+
 <h2 style="color:#C00000"><strong>CHECKLIST DI IMPLEMENTAZIONE</strong></h2>
 
 1. Individua le operazioni che il server deve offrire.

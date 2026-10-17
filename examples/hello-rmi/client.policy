@@ -1,0 +1,5 @@
+// JDK 21, esempio locale: lookup sul registry e invocazione sulla porta 1100.
+grant {
+    permission java.net.SocketPermission "localhost:1099", "connect";
+    permission java.net.SocketPermission "127.0.0.1:1100", "connect";
+};

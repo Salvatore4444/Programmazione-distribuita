@@ -451,3 +451,179 @@ La sostituzione di riferimenti remoti è ciò che permette di passare un servizi
 <h3 style="color:#C00000"><strong>SEQUENZA PRATICA DA RIPETERE</strong></h3>
 
 **Interfaccia `extends Remote` → metodi `throws RemoteException` → implementazione → esportazione → registry → `bind/rebind` → client `lookup` → chiamata via interfaccia → gestione degli errori.**
+
+<h2 style="color:#C00000"><strong>DOMANDE NUMERATE — JAVA RMI (9–48)</strong></h2>
+
+### 9. Come influì l'esperienza di Jim Waldo con CORBA sulla progettazione di Java RMI?
+
+L'esperienza con CORBA mostrò il costo di un middleware generale, pensato per linguaggi e piattaforme diversi: IDL, mapping e molte scelte infrastrutturali complicavano il caso Java–Java. RMI fu orientato a usare direttamente interfacce, oggetti, eccezioni e serializzazione di Java, semplificando quel caso. Waldo sottolineò anche che una chiamata remota non può essere del tutto indistinguibile da una locale: rete, latenza e guasti devono restare visibili al programmatore. È una motivazione progettuale, non una promessa di trasparenza totale.
+
+### 10. Perché RMI doveva essere un ambiente semplice e familiare al programmatore Java?
+
+**Semplice**: evitare che ogni applicazione debba costruire protocollo, stub, trasferimento dei parametri e ricerca dei servizi con socket grezzi. **Familiare**: descrivere i servizi con interfacce e chiamarli come metodi Java, usando tipi, eccezioni e strumenti già conosciuti. Questo riduce codice ripetitivo e curva di apprendimento, pur lasciando necessaria la gestione dei guasti di rete.
+
+### 11. Quali vantaggi dà integrare il modello distribuito nel linguaggio?
+
+Il compilatore controlla le firme e i tipi delle interfacce remote; IDE e refactoring lavorano sugli stessi costrutti Java; oggetti serializzabili, eccezioni e garbage collection sono riutilizzati; client e server condividono un contratto verificabile. Si evita di tradurre manualmente un'IDL esterna in tipi Java. Il costo è una minore interoperabilità diretta con programmi non Java rispetto a un middleware multipiattaforma.
+
+### 12. Perché la garbage collection semplifica il lavoro del programmatore?
+
+Recupera automaticamente la memoria degli oggetti non più raggiungibili, evitando molte `free` manuali e i relativi errori, come liberazioni premature e doppie liberazioni. In RMI la **distributed garbage collection** aiuta a tenere conto dei riferimenti remoti. Il programmatore deve comunque chiudere risorse come file e socket e non conservare riferimenti inutili.
+
+### 13. Quali sono i rischi dei memory leak e perché sono critici nei server?
+
+Un leak trattiene risorse non più utili: in Java spesso è un riferimento rimasto in una cache, lista, listener o thread; possono essere trattenuti anche file e socket. Crescono uso di memoria, pause di GC e rischio di `OutOfMemoryError`. Un server vive a lungo e ripete richieste, quindi anche una piccola perdita per richiesta si accumula fino a rallentare o interrompere il servizio per molti client.
+
+### 14. Quali vantaggi e svantaggi hanno gestione manuale della memoria e garbage collection?
+
+| Gestione | Vantaggi | Svantaggi |
+|---|---|---|
+| Manuale | Controllo esplicito di allocazione e rilascio; utile dove tempi e risorse richiedono un controllo preciso. | Richiede più lavoro; possibili leak, use-after-free, doppia liberazione e errori di concorrenza. |
+| Garbage collection | Libera gli oggetti non raggiungibili; semplifica il codice ed evita molti errori di memoria manuale. | Consuma risorse e può introdurre pause; non libera oggetti ancora raggiungibili per errore né sostituisce la chiusura delle risorse esterne. |
+
+### 15. Cosa sono invocazioni unicast, multicast e di oggetti attivabili?
+
+**Unicast**: una chiamata diretta a un solo oggetto remoto, modello ordinario di Java RMI. **Multicast**: una richiesta logica verso più destinatari, per esempio repliche; non è una modalità automatica della normale API RMI. **Oggetto attivabile**: il servizio può essere avviato o riattivato su richiesta; la *RMI Activation* storica è stata rimossa dal JDK 17.
+
+### 16. A cosa serve un'invocazione multicast?
+
+Può inviare un aggiornamento a repliche o cache, oppure interrogare più servizi per ridondanza. Bisogna stabilire quanti risultati attendere, cosa fare con risposte discordanti e come gestire duplicati e guasti. Per ottenerla con RMI ordinario serve una logica applicativa o un altro sistema di comunicazione.
+
+### 17. A cosa servono gli oggetti attivabili?
+
+Consentono di non tenere sempre in memoria servizi usati raramente: il sistema avvia il processo o ricrea l'oggetto alla prima richiesta, riducendo il consumo quando è inattivo. Occorre però ricostruire lo stato persistente e accettare il ritardo di avvio. È il modello storico di RMI Activation; oggi si realizza con altre soluzioni di gestione del servizio.
+
+### 18. Perché sostituire il trasporto senza modificare gli strati superiori?
+
+Se il trasporto espone un contratto stabile al livello dei riferimenti remoti, si possono cambiare connessione, protocollo o configurazione di rete mantenendo interfaccia e logica applicativa. Questo riduce modifiche e regressioni e consente adattamenti infrastrutturali. La sostituzione resta possibile solo se il nuovo trasporto preserva le proprietà richieste dagli strati superiori, come indirizzamento e consegna.
+
+### 19. Cosa significa che un'applicazione Java viene eseguita in una sandbox?
+
+Nel modello storico, codice di origine non fidata poteva essere eseguito con permessi limitati da una policy: per esempio senza accesso a file locali o connessioni arbitrarie. La sandbox combina controlli sul codice caricato e sulle operazioni consentite. Non significa che ogni programma Java o RMI sia automaticamente isolato. Il `SecurityManager` su cui si basavano le policy storiche è disabilitato permanentemente dal JDK 24.
+
+### 20. Quali sono i quattro livelli di sicurezza descritti nel modello didattico Java?
+
+Una suddivisione utile del modello storico è: **(1) linguaggio e compilatore**, **(2) class loader**, **(3) bytecode verifier**, **(4) controlli dei permessi a runtime tramite Security Manager e policy**. I primi tre limitano codice malformato o incompatibile; il quarto limita azioni sensibili. Le implementazioni Java moderne sono cambiate: questa è una descrizione del modello del corso, non una lista di protezioni da presumere oggi per RMI.
+
+### 21. Qual è l'obiettivo di ciascuno dei quattro livelli? Esempi?
+
+| Livello | Obiettivo ed esempio |
+|---|---|
+| Linguaggio/compilatore | Impedire nel sorgente operazioni non tipate e accessi contrari alle regole Java: `String s = 3` non compila; un campo `private` non è accessibile arbitrariamente. |
+| Class loader | Caricare e separare classi per origine e namespace, evitando che un'applicazione sostituisca liberamente classi fondamentali della piattaforma. |
+| Bytecode verifier | Controllare il `.class` prima dell'esecuzione: tipi coerenti sullo stack, salti validi, inizializzazione corretta, accessi ammessi. |
+| Security Manager/policy storici | Autorizzare operazioni sensibili: una policy poteva concedere `FilePermission` su una directory o `SocketPermission` su un host, negando il resto. |
+
+### 22. Perché il Bytecode Verifier ripete controlli già fatti dal compilatore?
+
+La JVM esegue **bytecode**, che può provenire da rete, file modificati, generatori diversi da `javac` o compilatori difettosi. Non può fidarsi che il sorgente sia stato compilato correttamente. Il verifier controlla la classe effettivamente caricata, anche se la provenienza non è nota; non sostituisce i controlli di permesso sulle operazioni a runtime.
+
+### 23. In quali package si struttura Java RMI e che cosa fanno?
+
+`java.rmi` contiene `Remote`, `RemoteException` e `Naming`; `java.rmi.server` fornisce esportazione e supporto ai riferimenti; `java.rmi.registry` contiene il registry e la ricerca; `java.rmi.dgc` riguarda la garbage collection distribuita. Nel corso compare anche `java.rmi.activation`, package storico per l'attivazione, rimosso dal JDK 17.
+
+### 24. Cos'è un'interfaccia remota?
+
+È un'interfaccia Java che estende `java.rmi.Remote` e dichiara le operazioni invocabili da altre JVM. Ogni metodo remoto deve dichiarare `RemoteException` o un suo supertipo ammesso. Il client conosce l'interfaccia, mentre il server la implementa ed esporta l'oggetto. Esempio: `interface Hello extends Remote { String sayHello() throws RemoteException; }`.
+
+### 25. Come vengono distinti i metodi remoti?
+
+Sono i metodi dichiarati in un'interfaccia che estende `Remote` (anche tramite ereditarietà) e dichiarano la possibile eccezione remota. Un metodo `public` aggiuntivo nella classe di implementazione resta locale e non appare sullo stub. Servono inoltre un'istanza esportata e un riferimento remoto per invocarli da un'altra JVM.
+
+### 26. In che senso l'interfaccia remota aggiunge un modificatore di accesso oltre a `public`, `private`, ecc.?
+
+È una **metafora**: la presenza nel contratto remoto decide se un metodo è esposto tramite RMI, oltre alla normale visibilità Java. Non esiste una keyword Java `remote` né un nuovo modificatore del linguaggio. Un metodo `public` non incluso nell'interfaccia remota non diventa per questo invocabile sullo stub.
+
+### 27. Come devono essere i parametri di un metodo remoto?
+
+Devono essere trasferibili: tipi primitivi, oggetti serializzabili (insieme al loro grafo di campi serializzati), oppure riferimenti a oggetti remoti esportati, espressi tramite interfacce remote. Le stesse regole valgono per risultati e eccezioni applicative trasmesse. Tipi che non implementano `Serializable` possono compilare ma causare un errore durante il marshalling.
+
+### 28. Cosa significa che un oggetto locale viene passato per copia?
+
+RMI serializza un normale oggetto serializzabile e ricostruisce un'altra istanza nella JVM ricevente. Le modifiche alla copia non aggiornano l'originale. Java passa sempre **per valore** gli argomenti: in questo caso il valore trasferito è una rappresentazione serializzata dell'oggetto; non attraversa la rete un puntatore alla memoria originale.
+
+### 29. Cosa garantisce l'integrità referenziale?
+
+Durante la serializzazione di **un singolo grafo di oggetti**, la tabella dei riferimenti conserva le condivisioni e i cicli: due campi che puntano allo stesso oggetto prima della trasmissione punteranno alla stessa **copia** dopo la deserializzazione. RMI preserva inoltre l'identità dei riferimenti a uno stesso oggetto remoto esportato. Non significa condividere memoria tra JVM né garantire identità tra copie spedite in chiamate indipendenti.
+
+### 30. Un esempio di integrità referenziale?
+
+Se `contenitore.a == contenitore.b` perché entrambi puntano alla stessa lista, serializzando `contenitore` in un unico `writeObject` il ricevente ottiene `copia.a == copia.b`. La lista ricevuta è però una copia: `copia.a != contenitore.a` tra le due JVM. Se la stessa lista fosse spedita in due chiamate separate, le due copie non avrebbero necessariamente la stessa identità.
+
+### 31. Come si localizza un oggetto remoto?
+
+Il server esporta l'oggetto e ne registra il riferimento con un nome nel `Registry`, per esempio `registry.rebind("Hello", stub)`. Il client conosce host, porta del registry (di norma 1099) e nome, ottiene il registry con `LocateRegistry.getRegistry(host, porta)` e chiama `lookup("Hello")`. Può anche ricevere un riferimento remoto come parametro o risultato, senza fare un nuovo lookup. Il registry non esegue le chiamate del servizio.
+
+### 32. Perché il compilatore impone la gestione di `RemoteException`?
+
+È una *checked exception*: un metodo remoto può non raggiungere il server o perdere la risposta, quindi il chiamante deve gestire o dichiarare il problema. Questo evita che la somiglianza sintattica con un metodo locale nasconda la possibilità di un guasto di comunicazione. Una `RemoteException` non dice sempre se il metodo sul server sia stato eseguito; occorre progettare con cura i retry.
+
+### 33. Cos'è un metodo idempotente e perché è utile da remoto?
+
+Ripeterlo una o più volte con gli stessi argomenti ha lo stesso effetto finale di eseguirlo una volta. `impostaSaldo(100)` può esserlo; `aggiungiAlSaldo(100)` normalmente non lo è. Se la risposta si perde, il client potrebbe non sapere se l'operazione è stata eseguita: riprovare un'operazione idempotente evita di duplicarne l'effetto. Restano necessari gestione delle eccezioni e controllo della concorrenza.
+
+### 34. Perché gli oggetti remoti dovrebbero somigliare agli oggetti locali?
+
+Interfacce, metodi e tipi Java permettono di riusare competenze, controlli statici e parte della logica applicativa. Il codice client può dipendere da un contratto invece che dai dettagli di rete. La somiglianza è utile finché non induce a fare troppe chiamate piccole: la latenza di rete favorisce operazioni remote più significative.
+
+### 35. Perché non è possibile la trasparenza totale fra oggetti locali e remoti?
+
+Una chiamata remota attraversa processi e rete: ha latenza, può fallire o completarsi senza che arrivi la risposta; parametri e risultati devono essere trasferiti, spesso per copia; l'oggetto server può sparire o essere riavviato. Una chiamata locale non presenta le stesse condizioni. `RemoteException` e il contratto remoto rendono visibile questa differenza.
+
+### 36. Cosa fa `RemoteObject` e quali metodi di `Object` ridefinisce?
+
+`java.rmi.server.RemoteObject` è una base storica per oggetti e stub remoti; contiene un `RemoteRef` e offre `getRef()` e `toStub(Remote)`. Ridefinisce `equals()`, `hashCode()` e `toString()` in termini del riferimento remoto, così due rappresentazioni dello stesso oggetto remoto possono essere confrontate coerentemente. `UnicastRemoteObject` ne deriva. Il normale codice client lavora con l'interfaccia remota.
+
+### 37. Qual è la differenza nel passaggio di parametri remoti?
+
+Un **oggetto di valore** serializzabile viene passato per copia; un **oggetto remoto esportato** viene rappresentato da un riferimento/stub che permette al destinatario di chiamare l'originale. Passare uno stub è comunque passare per valore un riferimento remoto, non un puntatore Java condiviso. Un oggetto che implementa `Remote` ma non è esportato non diventa automaticamente raggiungibile.
+
+### 38. Com'è organizzata l'architettura a layer di RMI e come comunicano i layer?
+
+Nel modello classico: **applicazione client → stub → Remote Reference Layer client → Transport Layer client → rete → Transport Layer server → Remote Reference Layer server → skeleton/dispatcher → implementazione**. La risposta torna lungo il percorso inverso. Ogni livello usa il servizio del livello sottostante e presenta un'interfaccia a quello superiore: il trasporto trasferisce dati, il livello dei riferimenti interpreta la destinazione e la semantica, stub/dispatcher traducono metodo e argomenti. Nel RMI moderno il dispatcher svolge il ruolo dello skeleton separato.
+
+### 39. Quali vantaggi e svantaggi ha un'architettura a layer?
+
+**Vantaggi:** separazione delle responsabilità, sostituibilità e testabilità dei componenti, riuso del trasporto e minori modifiche nell'applicazione quando cambia un livello. **Svantaggi:** attraversare più livelli aggiunge astrazione e un certo costo; la diagnosi di un guasto può richiedere di seguire l'intero percorso; un confine troppo rigido può impedire ottimizzazioni o nascondere proprietà del trasporto utili all'applicazione.
+
+### 40. Che cosa fanno Stub/Skeleton, Remote Reference e Transport layer?
+
+**Stub/Skeleton:** lo stub lato client prepara gli argomenti, invia la chiamata e ricostruisce il risultato; lo skeleton storico o dispatcher lato server ricostruisce gli argomenti, chiama l'implementazione e prepara risposta o eccezione. **Remote Reference:** rappresenta l'identità/destinazione dell'oggetto e la semantica dell'invocazione, normalmente unicast. **Transport:** apre e gestisce connessioni, ascolta e trasferisce i byte fra JVM, smistando le richieste entranti. I confini implementativi precisi possono variare tra versioni.
+
+### 41. In che cosa il marshalling differisce dalla serializzazione?
+
+La **serializzazione** codifica un oggetto Java e il suo grafo in byte. Il **marshalling** prepara un'intera chiamata remota per il protocollo: identifica metodo e destinatario, dispone parametri e tipi, serializza i valori, sostituisce dove necessario gli oggetti remoti con riferimenti/stub e prepara il risultato o l'eccezione. La serializzazione può dunque essere uno strumento usato dal marshalling, ma non comprende da sola tutta l'invocazione.
+
+### 42. Che cosa specializza `ObjectOutputStream` nello stream di marshalling RMI?
+
+Nel modello storico `MarshalOutputStream`, interno al runtime RMI, estende `ObjectOutputStream`: annota le classi con informazioni di codebase (`annotateClass`/`annotateProxyClass`) e abilita la sostituzione (`enableReplaceObject`/`replaceObject`) degli oggetti remoti esportati con i loro stub. Così un parametro remoto conserva la sua natura di riferimento invece di essere copiato come normale oggetto. Non è un'API applicativa pubblica su cui basare nuovo codice.
+
+### 43. Quali passi creano il server RMI?
+
+Definire l'interfaccia `extends Remote` con metodi che dichiarano `RemoteException`; implementarla; compilare; creare ed **esportare** l'istanza, tramite `UnicastRemoteObject` o `exportObject`; avviare o contattare il registry; registrare lo stub con `bind`/`rebind`; mantenere il servizio attivo e gestire gli errori. L'esportazione apre la possibilità di chiamata; la registrazione lo rende cercabile per nome.
+
+### 44. Quali passi creano il client RMI?
+
+Disporre dell'interfaccia remota e dei tipi condivisi compatibili; ottenere il registry dall'host/porta noti; eseguire `lookup` del nome; trattare il risultato come interfaccia remota; invocare i metodi e gestire `RemoteException` e le eccezioni applicative. Se riceve lo stub da un'altra chiamata, il lookup iniziale può non servire.
+
+### 45. Quali passi del server devono precedere l'uso del client?
+
+Il contratto condiviso deve essere disponibile per compilare il client. Perché il client possa fare `lookup`, il registry deve essere raggiungibile e il server deve avere **esportato** e **registrato** il servizio. Il codice client può essere scritto e compilato prima dell'avvio del server; è la sua esecuzione utile a richiedere quei prerequisiti. Il registry da solo non basta se il servizio non è registrato.
+
+### 46. A cosa serve `rmic`?
+
+È il compilatore RMI storico che, a partire dalla classe di implementazione compilata, genera classi di **stub statici** e, con opzioni legacy come `-vcompat`, anche **skeleton**. Queste classi vanno distribuite dove necessarie. Con gli stub dinamici introdotti nelle versioni successive non serve per i normali progetti RMI; il JDK 21 di questo ambiente non include `rmic`.
+
+### 47. Cosa fare dopo modifiche all'implementazione server, al client o all'interfaccia?
+
+| Modifica | Passi strettamente necessari |
+|---|---|
+| Solo implementazione server, firma remota invariata | Ricompilare e ridistribuire il server, poi riavviare o aggiornare il servizio. Una modifica interna che lascia invariato il contratto non richiede ricompilare il client né rigenerare gli stub statici. |
+| Solo implementazione client | Ricompilare e ridistribuire il client; il server può restare attivo se il contratto non cambia. |
+| Interfaccia remota o tipi condivisi | Ricompilare entrambe le parti contro la stessa versione compatibile, rigenerare e ridistribuire eventuali stub/skeleton statici, poi avviare le versioni coerenti. Un cambiamento incompatibile richiede migrazione coordinata. |
+
+### 48. Se client e server sono progetti separati, quali file condividono?
+
+Devono condividere la **stessa definizione compatibile delle interfacce remote** e delle classi/enum serializzabili usate nelle firme e nei grafi trasmessi. Nel flusso legacy con `rmic`, il client deve avere anche la classe stub generata (`*_Stub.class`); lo skeleton (`*_Skel.class`) sta sul server se usato. La classe concreta dell'implementazione server non è richiesta dal client. Nel RMI moderno gli stub dinamici eliminano il file stub condiviso.
+
+Le risposte agli esercizi **49–51** e i sorgenti eseguibili sono in [HelloWorld RMI](../tutti%20appunti%20pratici/ESERCIZI%20HELLOWORLD%20RMI.md).

@@ -15,4 +15,6 @@ I titoli contengono lo stile rosso e grassetto richiesto. GitHub filtra il color
 
 Sono disponibili anche il [glossario PD](tutti%20appunti/GLOSSARIO%20PD.md) e la raccolta completa di [esercizi sui thread](tutti%20appunti%20pratici/ESERCIZI%20THREAD.md). Le domande originali del vault sono riportate con le risposte nei rispettivi appunti teorici.
 
+Le **51 nuove domande numerate** sui socket, sugli stream e su Java RMI sono nei rispettivi [appunti Socket](tutti%20appunti/SOCKET.md) (1–8), [appunti RMI](tutti%20appunti/JAVA%20RMI.md) (9–48) ed [esercizi HelloWorld RMI](tutti%20appunti%20pratici/ESERCIZI%20HELLOWORLD%20RMI.md) (49–51).
+
 Il [confronto con il vault Obsidian](VERIFICA%20OBSIDIAN%20PD.md) aggiorna la verifica precedente: comprende solo Programmazione distribuita, i relativi termini, le annotazioni e le 11 immagini collegate.
